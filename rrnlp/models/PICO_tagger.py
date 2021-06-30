@@ -3,11 +3,12 @@ import os
 import torch 
 from transformers import *
 
-import encoder 
+import rrnlp
+from rrnlp.models import encoder 
 
-device = "cpu"
+device = rrnlp.models.device 
+weights_path = rrnlp.models.weights_path
 
-weights_path = "weights"
 weights_paths = {
     "p" : os.path.join(weights_path, "population_clf.pt"),
     "i" : os.path.join(weights_path, "interventions_clf.pt"),

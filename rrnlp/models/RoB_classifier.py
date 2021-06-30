@@ -3,14 +3,15 @@ import os
 import torch 
 from transformers import *
 
-import encoder 
+import rrnlp
+from rrnlp.models import encoder 
 
-device = "cpu"
+device = rrnlp.models.device 
+weights_path = rrnlp.models.weights_path
 
-clf_weights_path = os.path.join("weights", "RoB_overall_abs_clf.pt")
-# In the RoB case we load in some task-specific weights
-shared_encoder_weights_path = os.path.join("weights", "RoB_encoder_custom.pt")
-
+clf_weights_path = os.path.join(weights_path, "RoB_overall_abs_clf.pt")
+# In the RoB case we load in some task-specific weights for the encoder
+shared_encoder_weights_path = os.path.join(weights_path, "RoB_encoder_custom.pt")
 
 def get_RoB_model():
     # note that we assume the models were trained under I/O

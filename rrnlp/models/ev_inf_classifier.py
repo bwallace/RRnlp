@@ -1,19 +1,22 @@
 import os
+import sys 
 
 import numpy as np 
 
 import torch 
 from transformers import *
 
-import encoder 
+import rrnlp
+from rrnlp.models import encoder 
 
-device = "cpu"
+device = rrnlp.models.device 
+weights_path = rrnlp.models.weights_path
 
-clf_punchline_weights_path        = os.path.join("weights", "evidence_identification_clf.pt") 
-shared_enc_punchline_weights_path = os.path.join("weights", "evidence_identification_encoder_shared.pt") 
+clf_punchline_weights_path        = os.path.join(weights_path, "evidence_identification_clf.pt") 
+shared_enc_punchline_weights_path = os.path.join(weights_path, "evidence_identification_encoder_shared.pt") 
 
-clf_inference_weights_path = os.path.join("weights", "inference_clf.pt")
-shared_enc_inference_weights_path = os.path.join("weights", "inference_encoder_shared.pt")
+clf_inference_weights_path = os.path.join(weights_path, "inference_clf.pt")
+shared_enc_inference_weights_path = os.path.join(weights_path, "inference_encoder_shared.pt")
 
 def get_punchline_extractor():
     # note that we assume the models were trained under I/O
