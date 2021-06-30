@@ -4,7 +4,9 @@ This library provides access to a suite of models for extracting key data from a
 
 # Installing
 
-Assuming conda is installed, one can proceed as follows
+Pull the repository and `cd` into `rrnlp`. 
+
+Now, assuming conda is installed, one can proceed as follows
 
 ```
     conda create --name rrnlp
