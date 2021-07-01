@@ -117,8 +117,8 @@ class EvInfBot:
 
 ###
 # e.g.
-#
-# import ev_inf_classifier
+# 
+# from rrnlp.models import ev_inf_classifier
 # pl_bot = ev_inf_classifier.PunchlineExtractorBot()
 #
 # sentence = ["patients in group b died more often"]
