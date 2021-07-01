@@ -15,4 +15,6 @@ Now, assuming conda is installed, one can proceed as follows
     pip install .
 ```
 
+# Use
 
+TODO
