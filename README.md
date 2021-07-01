@@ -1,6 +1,8 @@
 # RRnlp
 
-This library provides access to a suite of models for extracting key data from abstracts of randomized controlled trials. 
+This library provides (easy!) access to a suite of models for extracting key data from abstracts of randomized controlled trials. 
+
+TODO add example
 
 # Installing
 
