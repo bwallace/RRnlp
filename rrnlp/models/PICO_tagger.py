@@ -47,13 +47,13 @@ def print_labels(tokens, labels):
         elif cur_lbl != "O":
             str_ = " ".join(cur_str)
             all_strs.append(str_)
-            print(str_)
             cur_str = []
             cur_lbl = "O"
         
     return all_strs
 
-def predict_for_str(model, string, id2tag, print_tokens=True, o_lbl="O"): 
+def predict_for_str(model, string, id2tag, print_tokens=True, o_lbl="O", 
+                            return_strings_only=True): 
     model.eval()
     words = string.split(" ")
     x = encoder.tokenize([words])
@@ -70,8 +70,8 @@ def predict_for_str(model, string, id2tag, print_tokens=True, o_lbl="O"):
             cur_w_idx = word_idx
 
         words_and_preds = list(zip(words, word_preds)) 
-        if print_tokens:
-            print_labels(words, word_preds)
+        if return_strings_only:
+            return print_labels(words, word_preds)
 
         return words_and_preds
 
@@ -86,10 +86,10 @@ class PICOBot:
     def make_preds_for_abstract(self, ti_abs):
         preds_d = {}
         for element, model in self.PICO_models.items():
-            print("---- predictions for {} --- ".format(element))
+            
             id2tag = ids2tags[element]
             preds_d[element] = predict_for_str(model, ti_abs, id2tag)
-            print()
+            
         return preds_d
 
 
