@@ -80,4 +80,8 @@ Now, assuming conda is installed, one can proceed as follows
     pip install .
 ```
 
+Alternatively, without pulling (but assuming `pip` available)
 
+```
+    python -m pip install https://github.com/bwallace/RRnlp/archive/refs/tags/alpha.tar.gz
+```
