@@ -1,4 +1,5 @@
 import os
+import string 
 
 import torch 
 from transformers import *
@@ -10,9 +11,12 @@ device = rrnlp.models.device
 weights_path = rrnlp.models.weights_path
 
 weights_paths = {
-    "p" : os.path.join(weights_path, "population_clf.pt"),
-    "i" : os.path.join(weights_path, "interventions_clf.pt"),
-    "o" : os.path.join(weights_path, "outcomes_clf.pt")
+    "p" : {"clf": os.path.join(weights_path, "population_clf.pt"),
+           "encoder" : os.path.join(weights_path, "population_encoder_custom.pt")},
+    "i" : {"clf": os.path.join(weights_path, "interventions_clf.pt"),
+           "encoder" : os.path.join(weights_path, "interventions_encoder_custom.pt")}, 
+    "o" : {"clf": os.path.join(weights_path, "outcomes_clf.pt"),
+           "encoder" : os.path.join(weights_path, "outcomes_encoder_custom.pt")}
 }
 
 ids2tags = {
@@ -27,15 +31,21 @@ def get_tagging_model(element):
     model = BertForTokenClassification.from_pretrained('allenai/scibert_scivocab_uncased', 
                                                         num_labels=2)
 
-    # replace the encoder to enforce sharing by ref (and so conserving mem)
-    model.bert = encoder.get_muppet()
-
+    
     # load in the correct top layer weights
-    clf_weights_path = weights_paths[element]
+    clf_weights_path = weights_paths[element]['clf']
     model.classifier.load_state_dict(torch.load(clf_weights_path, 
-                                        map_location=torch.device('cpu')))
-    return model 
+                                        map_location=torch.device(device)))
+    
 
+    encoder_weights_path = weights_paths[element]['encoder']
+    print("loading *encoder* parameters for {} from {}".format(element, encoder_weights_path))
+    custom_encoder_layers = torch.load(encoder_weights_path, 
+                                      map_location=torch.device(device))
+    encoder.load_encoder_layers(model.bert, encoder.get_muppet(), custom_encoder_layers)
+    print("ok") 
+    
+    return model 
 
 def print_labels(tokens, labels):
     all_strs, cur_str = [], []
@@ -75,10 +85,34 @@ def predict_for_str(model, string, id2tag, print_tokens=True, o_lbl="O",
 
         return words_and_preds
 
+
+
+def cleanup(spans):
+    '''
+    A helper (static) function for prettifying / deduplicating
+    the PICO snippets extracted by the model.
+    '''
+    def clean_span(s):
+        s_clean = s.strip()
+        # remove punctuation
+        s_clean = s_clean.strip(string.punctuation)
+
+        # remove 'Background:' when we pick it up
+        s_clean = s_clean.replace("Background", "")
+        return s_clean
+
+
+    cleaned_spans = [clean_span(s) for s in spans]
+    # remove empty
+    cleaned_spans = [s for s in cleaned_spans if s]
+    # dedupe
+    return list(set(cleaned_spans))
+
+
 class PICOBot:
     def __init__(self):
         self.PICO_models = {}
-        for element in weights_paths: 
+        for element in ['p', 'i', 'o']: 
             print("loading model {}".format(element))
             self.PICO_models[element] = get_tagging_model(element)
 
@@ -88,7 +122,7 @@ class PICOBot:
         for element, model in self.PICO_models.items():
             
             id2tag = ids2tags[element]
-            preds_d[element] = predict_for_str(model, ti_abs, id2tag)
+            preds_d[element] = cleanup(predict_for_str(model, ti_abs, id2tag))
             
         return preds_d
 
