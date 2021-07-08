@@ -66,6 +66,7 @@ def predict_for_str(model, string, id2tag, print_tokens=True, o_lbl="O",
                             return_strings_only=True): 
     model.eval()
     words = string.split(" ")
+    
     x = encoder.tokenize([words])
 
     with torch.no_grad():
