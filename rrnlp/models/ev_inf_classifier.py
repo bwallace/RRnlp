@@ -40,7 +40,10 @@ def get_inference_model():
     model = BertForSequenceClassification.from_pretrained('allenai/scibert_scivocab_uncased', 
                                                         num_labels=3)
 
-    model.bert = encoder.get_muppet()
+    # overwrite some of the encoder layers with custom weights
+    custom_encoder_layers = torch.load(shared_enc_inference_weights_path, 
+                                        map_location=torch.device(device))
+    encoder.load_encoder_layers(model.bert, encoder.get_muppet(), custom_encoder_layers)
 
     # load in the correct top layer weights
     model.classifier.load_state_dict(torch.load(clf_inference_weights_path, 
@@ -111,9 +114,8 @@ class EvInfBot:
         pl_sent, pred_probs = self.pl_bot.make_preds_for_abstract(ti_and_abs)
 
         # infer direction
-        direction = self.inf_bot.predict_for_sentence(pl_sent) 
-
-        return pl_sent, self.direction_strs[np.argmax(pred_probs)]
+        direction_probs = self.inf_bot.predict_for_sentence(pl_sent) 
+        return pl_sent, self.direction_strs[np.argmax(direction_probs)]
 
 ###
 # e.g.
