@@ -48,7 +48,7 @@ Should yield the following dictionary
 
 # Installing
 
-Pull the repository and `cd` into `rrnlp`. 
+For the latest, pull the repository and `cd` into `rrnlp`. 
 
 Now, assuming conda is installed, one can proceed as follows
 
