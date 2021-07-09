@@ -64,3 +64,38 @@ Alternatively, without pulling (but assuming `pip` available)
 ```
     python -m pip install https://github.com/bwallace/RRnlp/archive/refs/tags/v0.1.tar.gz
 ```
+
+# Citation 
+
+This set of models is a compilation of several different lines of work. If you use this and find it useful for your work, please consider citing (some subset of) the following.
+
+For the overall system: 
+
+```
+Marshall, I.J., Nye, B., Kuiper, J., Noel-Storr, A., Marshall, R., Maclean, R., Soboczenski, F., Nenkova, A., Thomas, J. and Wallace, B.C., 2020. Trialstreamer: A living, automatically updated database of clinical trial reports. Journal of the American Medical Informatics Association, 27(12), pp.1903-1912.
+
+Nye, B.E., Nenkova, A., Marshall, I.J. and Wallace, B.C., 2020, July. Trialstreamer: mapping and browsing medical evidence in real-time. In Proceedings of the conference. Association for Computational Linguistics. North American Chapter. Meeting (Vol. 2020, p. 63). 
+```
+
+For the "inference" component specifically ("punchlines" and directionality):
+
+```
+Eric Lehman, Jay DeYoung, Regina Barzilay, and Byron C. Wallace. Inferring Which Medical Treatments Work from Reports of Clinical Trials. In Proceedings of the Conference of the North American Chapter of the Association for Computational Linguistics (NAACL), pages 3705–3717, 2019.
+
+Jay DeYoung, Eric Lehman, Benjamin Nye, Iain Marshall, and Byron C. Wallace. Evidence Inference 2.0: More Data, Better Models. In Proceedings of BioNLP; co-located with the Association for Computational Linguistics (ACL), 2020.
+```
+
+If you are using the PICO snippets
+
+```
+Benjamin Nye, Jessy Li, Roma Patel, Yinfei Yang, Iain Marshall, Ani Nenkova, and Byron C. Wallace. A Corpus with Multi-Level Annotations of Patients, Interventions and Outcomes to Support Language Processing for Medical Literature. In Proceedings of the Conference of the Association for Computational Linguistics (ACL), pages 197–207, 2018.
+```
+
+And for risk of bias
+
+```
+Iain J. Marshall, Joël Kuiper, and Byron C. Wallace. RobotReviewer: Evaluation of a System for Automatically Assessing Bias in Clinical Trials. Journal of the American Medical Informatics Association (JAMIA), 23(1):193–201, 2016.
+```
+
+
+
