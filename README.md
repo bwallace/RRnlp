@@ -1,6 +1,8 @@
 # RRnlp
 
-This library provides (easy!) access to a suite of models for extracting key data from abstracts of randomized controlled trials (RCTs). In particular, `rrnlp` features lightweight variants of the models defined in Trialstreamer (https://trialstreamer.robotreviewer.net/; https://academic.oup.com/jamia/article/27/12/1903/5907063). However, the models here — all save for the sample size extractor constructed as linear layers on top of `SciBERT` representations, with only minimal fine tuning of SciBERT layers — are still experimental, and may not be as performant as the models used in Trialstreamer (yet!). 
+This library provides (easy!) access to a suite of models for extracting key data from abstracts of randomized controlled trials (RCTs). 
+
+In particular, `rrnlp` features lightweight variants of the models defined in Trialstreamer (https://trialstreamer.robotreviewer.net/; https://academic.oup.com/jamia/article/27/12/1903/5907063). However, the models here — all save for the sample size extractor constructed as linear layers on top of `SciBERT` representations, with only minimal fine tuning of `SciBERT` layers — are still experimental, and may not be as performant as the models used in Trialstreamer (yet!). See below for example usage. 
 
 # Use
 
