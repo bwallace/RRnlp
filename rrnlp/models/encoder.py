@@ -1,9 +1,10 @@
 
 '''
-The main purpose of this is to hold a single instance
-of a muppet for other modules to reference and share.
+The main purpose of this is to hold a single instance of a muppet for 
+other modules to reference and share.
 '''
 from collections import OrderedDict
+from typing import Type, Tuple, List
 
 import torch
 from transformers import *
@@ -14,22 +15,22 @@ import spacy
 nlp = spacy.load("en_core_sci_sm")
 
 
-# change as appropriate!
+# Change as appropriate!
 tokenizer = AutoTokenizer.from_pretrained('allenai/scibert_scivocab_uncased')
 muppet = AutoModel.from_pretrained('allenai/scibert_scivocab_uncased')
 #tokenizer = AutoTokenizer.from_pretrained('microsoft/BiomedNLP-PubMedBERT-base-uncased-abstract')
 #muppet = AutoModel.from_pretrained('microsoft/BiomedNLP-PubMedBERT-base-uncased-abstract')
 
-
 MAX_LEN = 512 
 
+# Freeze encoder layers by default.
 for param in muppet.parameters():
     param.requires_grad = False
 
-def get_muppet():
+def get_muppet() -> Type[BertModel]:
     return muppet
 
-def tokenize(texts, is_split_into_words=True):
+def tokenize(texts: List[str], is_split_into_words: bool=True):
     '''
     Assumes texts is a list of texts that have been **split into words**, like:
 
@@ -51,7 +52,12 @@ def tokenize(texts, is_split_into_words=True):
 '''
 Helper methods for accessing/unfreezing layers.
 '''
-def get_top_k_BERT_layers(bert_inst, k, n_encoder_layers=12):
+def get_top_k_BERT_layers(bert_inst: Type[BertModel], k:int, 
+                            n_encoder_layers:int=12) -> dict:
+    '''
+    Return top $k$ layer parameters from the given (Bert) encoder
+    in a parameters dictionary.
+    '''
     layer_indices = [n_encoder_layers-j for j in range(1, k+1)]
     layer_d = OrderedDict()
 
@@ -61,13 +67,17 @@ def get_top_k_BERT_layers(bert_inst, k, n_encoder_layers=12):
 
     return layer_d
 
-def unfreeze_last_k_layers(bert_inst, k, n_encoder_layers=12):
+def unfreeze_last_k_layers(bert_inst: Type[BertModel], k: int, 
+                            n_encoder_layers:int =12) -> None:
+    ''' Unfreezes the top k layers; modifies given BERT instance. '''
     encoder_layers_to_unfreeze = get_top_k_BERT_layers(bert_inst, k)
     for layer_name, layer_params in encoder_layers_to_unfreeze.items():
         layer_params.requires_grad = True  
 
 
-def load_encoder_layers(bespoke_muppet, shared_muppet, custom_layers):
+def load_encoder_layers(bespoke_muppet: Type[BertModel], 
+                        shared_muppet: Type[BertModel], 
+                        custom_layers: dict):
     ''' 
     Update the target ('bespoke') BERT (or similar) encoder (first arg) such 
     that it will comprise model parameter values equal to whatever is in 
