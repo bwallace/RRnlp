@@ -1,4 +1,5 @@
 import os
+from typing import Type, Tuple, List
 
 import torch 
 from transformers import *
@@ -9,38 +10,41 @@ from rrnlp.models import encoder
 device = rrnlp.models.device 
 weights_path = rrnlp.models.weights_path
 
+# These are the paths to the classifier (clf) and (custom; top-k layer)
+# encoder weights for the RoB model.
 clf_weights_path = os.path.join(weights_path, "RoB_overall_abs_clf.pt")
-# In the RoB case we load in some task-specific weights for the encoder
+# Task-specific weights for the encoder
 shared_encoder_weights_path = os.path.join(weights_path, "RoB_encoder_custom.pt")
 
-def get_RoB_model():
-    # note that we assume the models were trained under I/O
-    # encoding such that num_labels is 2
+def get_RoB_model() -> Type[BertForSequenceClassification]:
+    ''' Load in and return RoB model weights. '''
+
+    # Note that we assume the models were trained under I/O encoding 
+    # such that num_labels is 2
     model = BertForSequenceClassification.from_pretrained('allenai/scibert_scivocab_uncased', 
                                                         num_labels=2)
 
 
-    # read in encoder: a mix of shared weights and custom
+    # Read in encoder: a mix of shared weights and custom
     custom_encoder_layers = torch.load(shared_encoder_weights_path, 
                                         map_location=torch.device(device))
 
     encoder.load_encoder_layers(model.bert, encoder.get_muppet(), custom_encoder_layers)
 
-    # load in the correct top layer weights
+    # Load in the correct top layer (classifier) weights
     model.classifier.load_state_dict(torch.load(clf_weights_path, 
                                         map_location=torch.device(device)))
     return model 
 
 
-
-
 class AbsRoBBot:
+    ''' Lightweight container class that holds RoB model '''
     def __init__(self):
         self.RoB_model = get_RoB_model()
         self.RoB_model.eval()
 
-    def predict_for_doc(self, ti_and_abs): 
-        
+    def predict_for_doc(self, ti_and_abs: str) -> float: 
+        ''' Predicts p(low risk of bias) for input abstract '''
         x = encoder.tokenize(ti_and_abs, is_split_into_words=False)
 
         with torch.no_grad():
@@ -50,11 +54,11 @@ class AbsRoBBot:
             
             logits = self.RoB_model(x_input_ids, attention_mask=attention_mask)['logits'].cpu()
             probs  = torch.nn.functional.softmax(logits, dim=1).numpy()
-            #import pdb; pdb.set_trace()
+            
             prob_low_risk = probs[0][1]
             return prob_low_risk
 
-    def make_preds_for_abstract(self, ti_and_abs):
+    def make_preds_for_abstract(self, ti_and_abs: str) -> float:
         self.predict_for_doc(ti_and_abs)
 
 
