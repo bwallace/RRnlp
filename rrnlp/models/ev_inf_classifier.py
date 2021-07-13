@@ -1,5 +1,18 @@
+'''
+This module performs the "evidence inference" task, using a simple
+"pipelined" approach in which we first try and identify a "punchline"
+sentence, and then infer the directionality of the evidence that 
+seems to be reported in this. 
+
+References: 
+
+- Inferring Which Medical Treatments Work from Reports of Clinical Trials. Eric Lehman, Jay DeYoung, Regina Barzilay, and Byron C. Wallace. Proceedings of the North American Chapter of the Association for Computational Linguistics (NAACL), 2019.
+- Evidence Inference 2.0: More Data, Better Models. Jay DeYoung, Eric Lehman, Iain J. Marshall, and Byron C. Wallace. Proceedings of BioNLP (co-located with ACL), 2020.
+'''
+
 import os
 import sys 
+from typing import Type, Tuple, List
 
 import numpy as np 
 
@@ -12,51 +25,62 @@ from rrnlp.models import encoder
 device = rrnlp.models.device 
 weights_path = rrnlp.models.weights_path
 
+# Paths to model weights for both the "punchline" extractor model and the 
+# "inference" model. Both comprise custom encoder layers and a top layer
+# weight vector.
 clf_punchline_weights_path        = os.path.join(weights_path, "evidence_identification_clf.pt") 
 shared_enc_punchline_weights_path = os.path.join(weights_path, "evidence_identification_encoder_shared.pt") 
 
 clf_inference_weights_path = os.path.join(weights_path, "inference_clf.pt")
 shared_enc_inference_weights_path = os.path.join(weights_path, "inference_encoder_shared.pt")
 
-def get_punchline_extractor():
-    # note that we assume the models were trained under I/O
-    # encoding such that num_labels is 2
+def get_punchline_extractor() -> Type[BertForSequenceClassification]:
+    ''' 
+    Returns the 'punchline' extractor, which seeks out sentences that seem to convey
+    main findings. 
+    '''
     model = BertForSequenceClassification.from_pretrained('allenai/scibert_scivocab_uncased', 
                                                         num_labels=2)
 
-    # overwrite some of the encoder layers with custom weights
+    # Overwrite some of the encoder layers with custom weights.
     custom_encoder_layers = torch.load(shared_enc_punchline_weights_path, map_location=torch.device(device))
     encoder.load_encoder_layers(model.bert, encoder.get_muppet(), custom_encoder_layers)
 
-    # load in the correct top layer weights
+    # Load in the correct top layer weights.
     model.classifier.load_state_dict(torch.load(clf_punchline_weights_path, 
                                         map_location=torch.device(device)))
   
     return model 
 
 
-
-def get_inference_model():
+def get_inference_model() -> Type[BertForSequenceClassification]:
+    '''
+    This is a three-way classification model that attempts to classify punchline
+    sentences as reporting a result where the intervention resulted in a sig. 
+    decrease, no diff, or sig. increase w/r/t the outcome measured.
+    '''
     model = BertForSequenceClassification.from_pretrained('allenai/scibert_scivocab_uncased', 
                                                         num_labels=3)
 
-    # overwrite some of the encoder layers with custom weights
+    # Overwrite some of the encoder layers with custom weights
     custom_encoder_layers = torch.load(shared_enc_inference_weights_path, 
                                         map_location=torch.device(device))
     encoder.load_encoder_layers(model.bert, encoder.get_muppet(), custom_encoder_layers)
 
-    # load in the correct top layer weights
+    # Load in the correct top layer weights
     model.classifier.load_state_dict(torch.load(clf_inference_weights_path, 
                                         map_location=torch.device(device)))
     return model 
 
 
 class PunchlineExtractorBot:
+    ''' Lightweight container class for extracting punchlines. '''
+
     def __init__(self):
         self.punchline_extractor_model = get_punchline_extractor()
         self.punchline_extractor_model.eval()
 
-    def predict_for_sentences(self, sents): 
+    def predict_for_sentences(self, sents: List[str]) -> Type[np.array]: 
         
         x = encoder.tokenize(sents, is_split_into_words=False)
 
@@ -70,21 +94,28 @@ class PunchlineExtractorBot:
 
             return probs 
 
-    def make_preds_for_abstract(self, ti_and_abs):
-        # split into sentences via scispacy
+    def make_preds_for_abstract(self, ti_and_abs: str) -> Tuple[str, float]:
+        # Split into sentences via scispacy
         sentences = [s.text for s in encoder.nlp(ti_and_abs).sents]
+        # Make punchline predictions
         pred_probs = self.predict_for_sentences(sentences)
         best_sent_idx = np.argmax(pred_probs[:,1])
+        # Retrieve highest scoring sentence
         best_sent = sentences[best_sent_idx]
         return best_sent, pred_probs[best_sent_idx][1]
 
 
 class InferenceBot:
+    ''' Container for *inference* model which classifies punchlines. '''
     def __init__(self):
         self.inference_model = get_inference_model()
         self.inference_model.eval()
 
-    def predict_for_sentence(self, sent): 
+    def predict_for_sentence(self, sent: str) -> Type[np.array]: 
+        ''' 
+        Make a threeway pred for the given sentence: Is this punchline
+        reporting a sig. decrease (-1), no diff (0), or sig increase (1)? 
+        '''
         if type(sent) == str: 
             sent = [sent]
 
@@ -101,19 +132,18 @@ class InferenceBot:
             return probs 
 
 class EvInfBot:
-    ''' Compose the punchline extractor and inference model '''
-    
+    ''' Composes the punchline extractor and inference model. '''
     def __init__(self):
         self.pl_bot  = PunchlineExtractorBot()
         self.inf_bot = InferenceBot()
 
         self.direction_strs = ["↓ sig. decrease", "— no diff", "↑ sig. increase"]
 
-    def infer_evidence(self, ti_and_abs):
-        # get punchline
+    def infer_evidence(self, ti_and_abs: str) -> Tuple[str, str]:
+        # Get punchline.
         pl_sent, pred_probs = self.pl_bot.make_preds_for_abstract(ti_and_abs)
 
-        # infer direction
+        # Infer direction.
         direction_probs = self.inf_bot.predict_for_sentence(pl_sent) 
         return pl_sent, self.direction_strs[np.argmax(direction_probs)]
 
