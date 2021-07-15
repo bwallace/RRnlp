@@ -1,3 +1,14 @@
+'''
+This module classifies input abstracts as describing a Randomized Controlled Trial
+(in humans) or not. 
+
+For reference (and citation), see:
+
+    Marshall, Iain J., Anna Noel‐Storr, Joël Kuiper, James Thomas, and Byron C. Wallace. 
+    "Machine learning for identifying randomized controlled trials: an evaluation and 
+    practitioner's guide." Research synthesis methods 9, no. 4 (2018): 602-614.
+'''
+
 import os
 from typing import Type, Tuple, List
 
@@ -29,7 +40,6 @@ shared_encoder_weights_path = os.path.join(weights_path, "RCT_encoder_custom.pt"
 
 with open(os.path.join(weights_path, "bert_LR.pck"), 'rb') as f:
     lr = pickle.load(f)
-
 
 def get_RCT_model() -> Type[BertForSequenceClassification]:
     ''' Load in and return RCT model weights. '''

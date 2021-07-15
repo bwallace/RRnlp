@@ -1,3 +1,18 @@
+'''
+This module extracts descriptions (snippets) that describe the trial
+Population, Interventions/Comparators, and Outcomes (PICO elements)
+from abstracts of RCT reports.
+
+Reference: 
+
+    Nye, B., Li, J.J., Patel, R., Yang, Y., Marshall, I.J., Nenkova, A. 
+        and Wallace, B.C.
+    A corpus with multi-level annotations of patients, interventions and 
+        outcomes to support language processing for medical literature. 
+    In Proceedings of Association for Computational Linguistics (ACL), 2018.
+'''
+
+
 import os
 import string 
 from typing import Type, Tuple, List

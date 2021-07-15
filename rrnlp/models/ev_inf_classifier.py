@@ -6,8 +6,14 @@ seems to be reported in this.
 
 References: 
 
-- Inferring Which Medical Treatments Work from Reports of Clinical Trials. Eric Lehman, Jay DeYoung, Regina Barzilay, and Byron C. Wallace. Proceedings of the North American Chapter of the Association for Computational Linguistics (NAACL), 2019.
-- Evidence Inference 2.0: More Data, Better Models. Jay DeYoung, Eric Lehman, Iain J. Marshall, and Byron C. Wallace. Proceedings of BioNLP (co-located with ACL), 2020.
+    Inferring Which Medical Treatments Work from Reports of Clinical Trials. 
+    Eric Lehman, Jay DeYoung, Regina Barzilay, and Byron C. Wallace. 
+    Proceedings of the North American Chapter of the Association for Computational 
+    Linguistics (NAACL), 2019.
+
+    Evidence Inference 2.0: More Data, Better Models. Jay DeYoung, Eric Lehman, 
+        Iain J. Marshall, and Byron C. Wallace. 
+    Proceedings of BioNLP (co-located with ACL), 2020.
 '''
 
 import os

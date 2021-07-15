@@ -1,3 +1,27 @@
+'''
+This module performs "risk of bias" assessment for reports of RCTs, albeit using
+only *abstracts*; this is therefore a very simplified RoB scheme, with a single,
+overall "risk" assessed, as opposed to doing this per domain (as in the Cochrane 
+tool).
+
+For reference (and citation), see:
+
+    Marshall, Iain J., Joël Kuiper, and Byron C. Wallace. 
+    "RobotReviewer: evaluation of a system for automatically 
+        assessing bias in clinical trials." 
+    Journal of the American Medical Informatics Association 23, no. 1 
+        2016: 193-201.
+
+And more about the abstract-only approach here:
+
+    Marshall, I.J., Nye, B., Kuiper, J., Noel-Storr, A., Marshall, R., 
+        Maclean, R., Soboczenski, F., Nenkova, A., Thomas, J. and 
+        Wallace, B.C.
+    "Trialstreamer: A living, automatically updated database of clinical trial reports."
+    Journal of the American Medical Informatics Association, 27(12), 
+        2020: pp.1903-1912.
+'''
+
 import os
 from typing import Type, Tuple, List
 
