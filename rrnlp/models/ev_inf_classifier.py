@@ -35,10 +35,10 @@ weights_path = rrnlp.models.weights_path
 # "inference" model. Both comprise custom encoder layers and a top layer
 # weight vector.
 clf_punchline_weights_path        = os.path.join(weights_path, "evidence_identification_clf.pt") 
-shared_enc_punchline_weights_path = os.path.join(weights_path, "evidence_identification_encoder_shared.pt") 
+shared_enc_punchline_weights_path = os.path.join(weights_path, "evidence_identification_encoder_custom") 
 
 clf_inference_weights_path = os.path.join(weights_path, "inference_clf.pt")
-shared_enc_inference_weights_path = os.path.join(weights_path, "inference_encoder_shared.pt")
+shared_enc_inference_weights_path = os.path.join(weights_path, "inference_encoder_custom.pt")
 
 def get_punchline_extractor() -> Type[BertForSequenceClassification]:
     ''' 
