@@ -22,29 +22,31 @@ Should yield the following dictionary
     import pprint
     pp = pprint.PrettyPrinter(width=200)
     pp.pprint(preds)
-    
-    {'PICO': {'i': ['Hydroxychloroquine', 'usual care', 'hydroxychloroquine', 'hydroxychloroquine group', 'usual-care group (which received no specific therapy', 'drug'],
-              'o': ['incidence of adverse events',
-                    'SARS-CoV-2',
+
+    {'PICO': {'i': ['hydroxychloroquine group', 'hydroxychloroquine', 'drug', 'usual care', 'Hydroxychloroquine', 'usual-care group (which received no specific therapy'],
+              'o': ['incidence of SARS-CoV-2 transmission',
                     'incidence of PCR-confirmed, symptomatic Covid-19',
-                    'Adverse',
-                    'SARS-CoV-2 infection',
-                    'symptoms',
-                    'Covid-19 or a positive PCR test',
-                    'symptomatic Covid-19',
-                    'incidence of SARS-CoV-2 transmission',
+                    'incidence of adverse events',
                     'PCR-confirmed, symptomatic Covid-19',
-                    'serious adverse events'],
-              'p': ['healthy persons',
+                    'symptoms',
+                    'serious adverse events',
+                    'SARS-CoV-2',
+                    'SARS-CoV-2 infection',
+                    'Adverse',
+                    'Covid-19 or a positive PCR test',
+                    'symptomatic Covid-19'],
+              'p': ['asymptomatic contacts of patients with polymerase-chain-reaction',
                     '2314 healthy contacts of 672 index case patients with Covid-19 who were identified between March 17 and April 28, 2020',
-                    'PCR-positive',
-                    'asymptomatic contacts of patients with polymerase-chain-reaction',
-                    'Covid-19 in Catalonia, Spain']},
+                    'Covid-19 in Catalonia, Spain',
+                    'healthy persons',
+                    'PCR-positive']},
      'ev_inf': ('Results were similar in the hydroxychloroquine and usual-care groups with respect to the incidence of PCR-confirmed, symptomatic Covid-19 (5.7% and 6.2%, respectively; risk ratio, 0.86 '
                 '[95% confidence interval, 0.52 to 1.42]).',
                 '— no diff'),
+     'is_RCT?': {'is_rct': True, 'prob_rct': 0.6828127889603965},
      'n': '2314',
      'p_low_RoB': 0.000204605}
+
 
 ```
 
@@ -93,11 +95,19 @@ If you are using the PICO snippets
 Benjamin Nye, Jessy Li, Roma Patel, Yinfei Yang, Iain Marshall, Ani Nenkova, and Byron C. Wallace. A Corpus with Multi-Level Annotations of Patients, Interventions and Outcomes to Support Language Processing for Medical Literature. In Proceedings of the Conference of the Association for Computational Linguistics (ACL), pages 197–207, 2018.
 ```
 
+For the RCT classifier
+
+```
+Marshall, Iain J., Anna Noel‐Storr, Joël Kuiper, James Thomas, and Byron C. Wallace. "Machine learning for identifying randomized controlled trials: an evaluation and practitioner's guide." Research Synthesis Methods 9, no. 4 (2018): 602-614.
+```
+
 And for risk of bias
 
 ```
 Iain J. Marshall, Joël Kuiper, and Byron C. Wallace. RobotReviewer: Evaluation of a System for Automatically Assessing Bias in Clinical Trials. Journal of the American Medical Informatics Association (JAMIA), 23(1):193–201, 2016.
 ```
 
+# Support
 
+This work has been supported by National Institutes of Health (NIH) under the National Library of Medicine (NLM), grant R01-LM012086 and by the National Science Foundation (NSF) under Grant 1750978: "CAREER: Structured Scientific Evidence Extraction: Models and Corpora". The work has also been partially supported by the UK Medical Research Council (MRC), through its Skills Development Fellowship program, fellowship MR/N015185/1.
 
