@@ -7,6 +7,8 @@ from collections import OrderedDict
 from typing import Type, Tuple, List
 
 import torch
+import transformers 
+transformers.logging.set_verbosity_error()
 from transformers import *
 
 import numpy as np 
