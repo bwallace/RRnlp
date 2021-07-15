@@ -61,7 +61,7 @@ class AbsRCTBot:
 
     def classify(self, raw_bert_score: float) -> dict:
         prob_rct = lr.predict_proba([[raw_bert_score]])[:,1]
-        return {"is_rct": prob_rct > thresholds['bert']['balanced'], "prob_rct": prob_rct}
+        return {"is_rct": (prob_rct > thresholds['bert']['balanced'])[0], "prob_rct": (prob_rct)[0]}
 
     def predict_for_doc(self, ti_and_abs: str) -> float:
         ''' Predicts p(low risk of bias) for input abstract '''
