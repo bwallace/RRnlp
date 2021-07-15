@@ -62,11 +62,9 @@ def get_tagging_model(element: str) -> Type[BertForTokenClassification]:
     
 
     encoder_weights_path = weights_paths[element]['encoder']
-    print("loading *encoder* parameters for {} from {}".format(element, encoder_weights_path))
     custom_encoder_layers = torch.load(encoder_weights_path, 
                                       map_location=torch.device(device))
     encoder.load_encoder_layers(model.bert, encoder.get_muppet(), custom_encoder_layers)
-    print("ok") 
     
     return model 
 
@@ -141,7 +139,6 @@ class PICOBot:
     def __init__(self):
         self.PICO_models = {}
         for element in ['p', 'i', 'o']: 
-            print("loading model {}".format(element))
             self.PICO_models[element] = get_tagging_model(element)
 
 
