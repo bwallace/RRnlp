@@ -66,7 +66,7 @@ Now, assuming conda is installed, one can proceed as follows
 Alternatively, without pulling (but assuming `pip` available). WARNING: This is an outdated release and not recommended currently. 
 
 ```
-    python -m pip install https://github.com/bwallace/RRnlp/archive/refs/tags/v0.1.tar.gz
+    python -m pip install https://github.com/bwallace/RRnlp/archive/refs/tags/v0.2.tar.gz
 ```
 
 # Citation 
