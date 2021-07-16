@@ -23,6 +23,10 @@ from transformers import *
 import rrnlp
 from rrnlp.models import encoder 
 from rrnlp.models.util.minimap import minimap
+from rrnlp.models.util.schwartz_hearst import extract_abbreviation_definition_pairs
+
+
+
 
 device = rrnlp.models.device 
 weights_path = rrnlp.models.weights_path
@@ -145,11 +149,19 @@ class PICOBot:
 
     def make_preds_for_abstract(self, ti_abs: str) -> dict:
         preds_d = {}
+        
+        abbrev_dict = extract_abbreviation_definition_pairs(doc_text=ti_abs)
+
         for element, model in self.PICO_models.items():
             
             id2tag = ids2tags[element]
             predicted_spans = cleanup(predict_for_str(model, ti_abs, id2tag))
-            MeSH_terms = minimap.get_unique_terms(predicted_spans)
+
+            
+            
+
+            MeSH_terms = minimap.get_unique_terms(predicted_spans, abbrevs=abbrev_dict)
+
             preds_d[element] = {"spans":predicted_spans, 
                                 "MeSH": MeSH_terms}
             
