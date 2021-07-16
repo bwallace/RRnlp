@@ -70,8 +70,17 @@ class AbsRCTBot:
         self.RCT_model.eval()
 
     def classify(self, raw_bert_score: float) -> dict:
+        """
+        gets balanced classification, but also returns full scores
+        """
         prob_rct = lr.predict_proba([[raw_bert_score]])[:,1]
-        return {"is_rct": (prob_rct > thresholds['bert']['balanced'])[0], "prob_rct": (prob_rct)[0]}
+
+        scores = {}
+        for t in ['sensitive', 'balanced', 'precise']:
+            scores[f"is_rct_{t}"] = (prob_rct > thresholds['bert'][t])[0]
+
+
+        return {"is_rct": scores['is_rct_balanced'], "prob_rct": (prob_rct)[0], "scores": scores}
 
     def predict_for_doc(self, ti_and_abs: str) -> float:
         ''' Predicts p(low risk of bias) for input abstract '''

@@ -23,20 +23,32 @@ class TrialReader:
         self.ss_model   = sample_size_extractor.MLPSampleSizeClassifier()
         self.rob_model  = RoB_classifier.AbsRoBBot()
 
-    def read_trial(self, abstract_text: str) -> Type[dict]:
+    def read_trial(self, abstract_text: str, process_rcts_only=True) -> Type[dict]:
+        """
+        The default behaviour is that non-RCTs do not have all extractions done (to save time).
+        If you wish to use all the models anyway (which might not behave entirely as expected)
+        then set `process_rcts_only=False`.
+        """
         return_dict = {}
 
         # First: is this an RCT? If not, the rest of the models do not make
         # a lot of sense so we will warn the user
-        return_dict["is_RCT?"]      = self.RCT_model.predict_for_doc(abstract_text)
-        if not return_dict["is_RCT?"]["is_rct"]:
-            print('''Warning! The input does not appear to describe an RCT; 
-                     interpret predictions accordingly.''')
-        
-        return_dict["PICO"]         = self.pico_model.make_preds_for_abstract(abstract_text)
-        return_dict["ev_inf"]       = self.inf_model.infer_evidence(abstract_text)
-        return_dict["n"]            = self.ss_model.predict_for_abstract(abstract_text)
-        return_dict["p_low_RoB"]    = self.rob_model.predict_for_doc(abstract_text)
+        return_dict["rct_bot"] = self.RCT_model.predict_for_doc(abstract_text)
+
+        if not return_dict["rct_bot"]["is_rct"]:
+            if process_rcts_only:
+                print('''Predicted as non-RCT, so rest of models not run. Re-run
+                         with `process_rcts_only=False` to get all predictions.''')
+            else:
+                print('''Warning! The input does not appear to describe an RCT; 
+                         interpret predictions accordingly.''')
+
+        if (not process_rcts_only) or return_dict["rct_bot"]["is_rct"]:
+                                            
+                return_dict["pico_span_bot"] = self.pico_model.make_preds_for_abstract(abstract_text)
+                return_dict["punchline_bot"] = self.inf_model.infer_evidence(abstract_text)
+                return_dict["sample_size_bot"] = self.ss_model.predict_for_abstract(abstract_text)
+                return_dict["bias_ab_bot"] = self.rob_model.predict_for_doc(abstract_text)
         return return_dict
 
 

@@ -157,13 +157,12 @@ class PICOBot:
             id2tag = ids2tags[element]
             predicted_spans = cleanup(predict_for_str(model, ti_abs, id2tag))
 
-            
-            
+        
 
             MeSH_terms = minimap.get_unique_terms(predicted_spans, abbrevs=abbrev_dict)
 
-            preds_d[element] = {"spans":predicted_spans, 
-                                "MeSH": MeSH_terms}
+            preds_d[element] = predicted_spans
+            preds_d[f"{element}_mesh"] = MeSH_terms
             
         return preds_d
 

@@ -80,7 +80,7 @@ class AbsRoBBot:
             probs  = torch.nn.functional.softmax(logits, dim=1).numpy()
             
             prob_low_risk = probs[0][1]
-            return prob_low_risk
+            return {"prob_low_rob": prob_low_risk}
 
     def make_preds_for_abstract(self, ti_and_abs: str) -> float:
         self.predict_for_doc(ti_and_abs)

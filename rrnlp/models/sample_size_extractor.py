@@ -164,9 +164,9 @@ class MLPSampleSizeClassifier:
         # a somewhat arbitrarily chosen threshold (since not all abstracts will
         # contain sample sizes.)
         if preds[most_likely_idx] >= self.magic_threshold:
-            return abstract_tokens[numeric_token_indices[most_likely_idx]]
+            return {"num_randomized": abstract_tokens[numeric_token_indices[most_likely_idx]]}
         else:
-            return None 
+            return {"num_randomized": None}
 
 
 def load_trained_w2v_model(path: str) -> Type[gensim.models.keyedvectors.KeyedVectors]:
