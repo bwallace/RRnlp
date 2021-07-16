@@ -32,11 +32,6 @@ import rrnlp
 weights_path = rrnlp.models.weights_path
 
 
-import sklearn
-import sklearn.linear_model
-
-
-sklearn.linear_model.stochastic_gradient =  sklearn.linear_model._stochastic_gradient
 
 class AbsRoBBot:
     ''' Lightweight container class that holds RoB logistic regression model '''
