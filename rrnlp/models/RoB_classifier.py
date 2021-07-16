@@ -67,7 +67,7 @@ class AbsRoBBot:
         self.RoB_model = get_RoB_model()
         self.RoB_model.eval()
 
-    def predict_for_doc(self, ti_and_abs: str) -> float: 
+    def predict_for_doc(self, ti_and_abs: str) -> dict: 
         ''' Predicts p(low risk of bias) for input abstract '''
         x = encoder.tokenize(ti_and_abs, is_split_into_words=False)
 

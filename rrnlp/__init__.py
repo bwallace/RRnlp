@@ -11,7 +11,7 @@ import warnings
 
 import rrnlp
 from rrnlp.models import PICO_tagger, ev_inf_classifier, \
-                        sample_size_extractor, RoB_classifier, \
+                        sample_size_extractor, RoB_classifier_LR, \
                         RCT_classifier
 
 class TrialReader:
@@ -21,7 +21,7 @@ class TrialReader:
         self.pico_model = PICO_tagger.PICOBot()
         self.inf_model  = ev_inf_classifier.EvInfBot()
         self.ss_model   = sample_size_extractor.MLPSampleSizeClassifier()
-        self.rob_model  = RoB_classifier.AbsRoBBot()
+        self.rob_model  = RoB_classifier_LR.AbsRoBBot()
 
     def read_trial(self, abstract_text: str, process_rcts_only=True) -> Type[dict]:
         """
