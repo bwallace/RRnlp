@@ -67,7 +67,7 @@ Should yield the following dictionary
 
 # Installing
 
-For the latest, pull the repository and `cd` into `RRnlp`. 
+For the latest, clone (`git clone https://github.com/bwallace/RRnlp.git`) the repository and `cd` into `RRnlp`. 
 
 Now, assuming conda is installed, one can proceed as follows
 
