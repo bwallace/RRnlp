@@ -1,0 +1,17 @@
+{
+    "PICO_tagger": 
+        {"zenodo": "5110032",
+         "files": ["interventions_clf.pt", "population_clf.pt", "outcomes_clf.pt",
+         "interventions_encoder_custom.pt", "outcomes_encoder_custom.pt", "population_encoder_custom.pt"]},
+    "ev_inf_classifier": {"zenodo": "5110032",
+                          "files": ["evidence_identification_clf.pt", "inference_clf.pt",
+                          "evidence_identification_encoder_custom.pt", "inference_encoder_custom.pt"]},
+    "RCT_classifier": {"zenodo": "5110032",
+                       "files": ["RCT_overall_abs_clf.pt", "RCT_encoder_custom.pt", "bert_LR.pck"]},
+    "RoB_classifier_LR": {"zenodo": "5110032",
+                          "files": ["bias_prob_clf.pck"]},
+    "RoB_classifier": {"zenodo": "5110032",
+                          "files": ["RoB_overall_abs_clf.pt", "RoB_encoder_custom.pt"]},
+    "sample_size_extractor": {"zenodo": "5110032",
+                          "files": ["sample_size_weights.pt", "RoB_encoder_custom.pt"]}
+}

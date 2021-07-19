@@ -28,8 +28,9 @@ from rrnlp.models import encoder
 
 device = rrnlp.models.device 
 weights_path = rrnlp.models.weights_path
-word_embeddings_path = os.path.join(weights_path, "PubMed-w2v.bin")
-MLP_weights_path     = os.path.join(weights_path, "sample_size_weights.pt")
+doi = rrnlp.models.files_needed['sample_size_extractor']['zenodo']
+word_embeddings_path = os.path.join(weights_path, f"PubMed-w2v.bin") # note that this is not DOI'ed - but fetched from the gensim source
+MLP_weights_path     = os.path.join(weights_path, f"{doi}_sample_size_weights.pt")
 
 
 def replace_n_equals(abstract_tokens: List[str]) -> List[str]:
@@ -142,11 +143,13 @@ class MLPSampleSizeClassifier:
         return Xv 
 
 
-    def predict_for_abstract(self, abstract_text: str) -> typing.Union[str, None]:
+    def predict_for_ab(self, ab: dict) -> typing.Union[str, None]:
         ''' 
         Given an abstract, this returns either the extracted sample 
         size, or None if this cannot be located. 
         '''
+        abstract_text = ab['ab']
+        
         abstract_text_w_numbers = self.number_tagger.swap(abstract_text)
         abstract_tokens, POS_tags = tokenize_abstract(abstract_text_w_numbers, self.nlp)
         abstract_tokens = replace_n_equals(abstract_tokens)
@@ -379,7 +382,53 @@ def example():
     from rrnlp.models import sample_size_extractor
     ss = sample_size_extractor.MLPSampleSizeClassifier()
 
-    abstract = '''Background: World Health Organization expert groups recommended mortality trials of four repurposed antiviral drugs - remdesivir, hydroxychloroquine, lopinavir, and interferon beta-1a - in patients hospitalized with coronavirus disease 2019 (Covid-19). Methods: We randomly assigned inpatients with Covid-19 equally between one of the trial drug regimens that was locally available and open control (up to five options, four active and the local standard of care). The intention-to-treat primary analyses examined in-hospital mortality in the four pairwise comparisons of each trial drug and its control (drug available but patient assigned to the same care without that drug). Rate ratios for death were calculated with stratification according to age and status regarding mechanical ventilation at trial entry. Results: At 405 hospitals in 30 countries, 11,330 adults underwent randomization; 2750 were assigned to receive remdesivir, 954 to hydroxychloroquine, 1411 to lopinavir (without interferon), 2063 to interferon (including 651 to interferon plus lopinavir), and 4088 to no trial drug. Adherence was 94 to 96% midway through treatment, with 2 to 6% crossover. In total, 1253 deaths were reported (median day of death, day 8; interquartile range, 4 to 14). The Kaplan-Meier 28-day mortality was 11.8% (39.0% if the patient was already receiving ventilation at randomization and 9.5% otherwise). Death occurred in 301 of 2743 patients receiving remdesivir and in 303 of 2708 receiving its control (rate ratio, 0.95; 95% confidence interval [CI], 0.81 to 1.11; P = 0.50), in 104 of 947 patients receiving hydroxychloroquine and in 84 of 906 receiving its control (rate ratio, 1.19; 95% CI, 0.89 to 1.59; P = 0.23), in 148 of 1399 patients receiving lopinavir and in 146 of 1372 receiving its control (rate ratio, 1.00; 95% CI, 0.79 to 1.25; P = 0.97), and in 243 of 2050 patients receiving interferon and in 216 of 2050 receiving its control (rate ratio, 1.16; 95% CI, 0.96 to 1.39; P = 0.11). No drug definitely reduced mortality, overall or in any subgroup, or reduced initiation of ventilation or hospitalization duration. Conclusions: These remdesivir, hydroxychloroquine, lopinavir, and interferon regimens had little or no effect on hospitalized patients with Covid-19, as indicated by overall mortality, initiation of ventilation, and duration of hospital stay. (Funded by the World Health Organization; ISRCTN Registry number, ISRCTN83971151; ClinicalTrials.gov number, NCT04315948.).'''
+    ab = '''Background: World Health Organization expert groups recommended mortality trials of four repurposed antiviral drugs - remdesivir, hydroxychloroquine, lopinavir, and interferon beta-1a - in patients hospitalized with coronavirus disease 2019 (Covid-19). Methods: We randomly assigned inpatients with Covid-19 equally between one of the trial drug regimens that was locally available and open control (up to five options, four active and the local standard of care). The intention-to-treat primary analyses examined in-hospital mortality in the four pairwise comparisons of each trial drug and its control (drug available but patient assigned to the same care without that drug). Rate ratios for death were calculated with stratification according to age and status regarding mechanical ventilation at trial entry. Results: At 405 hospitals in 30 countries, 11,330 adults underwent randomization; 2750 were assigned to receive remdesivir, 954 to hydroxychloroquine, 1411 to lopinavir (without interferon), 2063 to interferon (including 651 to interferon plus lopinavir), and 4088 to no trial drug. Adherence was 94 to 96% midway through treatment, with 2 to 6% crossover. In total, 1253 deaths were reported (median day of death, day 8; interquartile range, 4 to 14). The Kaplan-Meier 28-day mortality was 11.8% (39.0% if the patient was already receiving ventilation at randomization and 9.5% otherwise). Death occurred in 301 of 2743 patients receiving remdesivir and in 303 of 2708 receiving its control (rate ratio, 0.95; 95% confidence interval [CI], 0.81 to 1.11; P = 0.50), in 104 of 947 patients receiving hydroxychloroquine and in 84 of 906 receiving its control (rate ratio, 1.19; 95% CI, 0.89 to 1.59; P = 0.23), in 148 of 1399 patients receiving lopinavir and in 146 of 1372 receiving its control (rate ratio, 1.00; 95% CI, 0.79 to 1.25; P = 0.97), and in 243 of 2050 patients receiving interferon and in 216 of 2050 receiving its control (rate ratio, 1.16; 95% CI, 0.96 to 1.39; P = 0.11). No drug definitely reduced mortality, overall or in any subgroup, or reduced initiation of ventilation or hospitalization duration. Conclusions: These remdesivir, hydroxychloroquine, lopinavir, and interferon regimens had little or no effect on hospitalized patients with Covid-19, as indicated by overall mortality, initiation of ventilation, and duration of hospital stay. (Funded by the World Health Organization; ISRCTN Registry number, ISRCTN83971151; ClinicalTrials.gov number, NCT04315948.).'''
 
-    ss.predict_for_abstract(abstract)
+    ss.predict_for_ab(ab)
 
+
+###
+# e.g.
+#
+# import sample_size_extractor
+# sample_size_bot = sample_size_extractor.MLPSampleSizeClassifier()
+#
+# ti_abs = {"ti": 'A Cluster-Randomized Trial of Hydroxychloroquine for Prevention of Covid-19',
+#           "ab": """ Background: Current strategies for preventing severe acute
+#            respiratory syndrome coronavirus 2 (SARS-CoV-2) infection are
+#            limited to nonpharmacologic interventions. Hydroxychloroquine has
+#            been proposed as a postexposure therapy to prevent coronavirus
+#            disease 2019 (Covid-19), but definitive evidence is lacking.
+
+#           Methods: We conducted an open-label, cluster-randomized trial
+#           involving asymptomatic contacts of patients with
+#           polymerase-chain-reaction (PCR)-confirmed Covid-19 in Catalonia,
+#           Spain. We randomly assigned clusters of contacts to the
+#           hydroxychloroquine group (which received the drug at a dose of 800 mg
+#           once, followed by 400 mg daily for 6 days) or to the usual-care
+#           group (which received no specific therapy). The primary outcome was
+#           PCR-confirmed, symptomatic Covid-19 within 14 days. The secondary
+#           outcome was SARS-CoV-2 infection, defined by symptoms compatible with
+#           Covid-19 or a positive PCR test regardless of symptoms. Adverse
+#           events were assessed for up to 28 days.\n\nResults: The analysis
+#           included 2314 healthy contacts of 672 index case patients with
+#           Covid-19 who were identified between March 17 and April 28, 2020. A
+#           total of 1116 contacts were randomly assigned to receive
+#           hydroxychloroquine and 1198 to receive usual care. Results were
+#           similar in the hydroxychloroquine and usual-care groups with respect
+#           to the incidence of PCR-confirmed, symptomatic Covid-19 (5.7% and
+#           6.2%, respectively; risk ratio, 0.86 [95% confidence interval, 0.52
+#           to 1.42]). In addition, hydroxychloroquine was not associated with a
+#           lower incidence of SARS-CoV-2 transmission than usual care (18.7% and
+#           17.8%, respectively). The incidence of adverse events was higher in
+#           the hydroxychloroquine group than in the usual-care group (56.1% vs.
+#           5.9%), but no treatment-related serious adverse events were
+#           reported.\n\nConclusions: Postexposure therapy with
+#           hydroxychloroquine did not prevent SARS-CoV-2 infection or
+#           symptomatic Covid-19 in healthy persons exposed to a PCR-positive
+#           case patient. (Funded by the crowdfunding campaign YoMeCorono and
+#           others; BCN-PEP-CoV2 ClinicalTrials.gov number, NCT04304053.).
+#           """
+# }
+#
+# sample_size = sample_size_bot.predict_for_doc(ti_abs) 
