@@ -3,6 +3,7 @@
 The main purpose of this is to hold a single instance of a muppet for 
 other modules to reference and share.
 '''
+import os
 from collections import OrderedDict
 from typing import Type, Tuple, List
 
@@ -14,8 +15,12 @@ from transformers import *
 import numpy as np 
 
 import spacy 
-nlp = spacy.load("en_core_sci_sm")
 
+import rrnlp 
+spacy_weights_path = os.path.join(rrnlp.models.weights_path, 
+                                   "en_core_sci_sm-0.4.0", "en_core_sci_sm", 
+                                   "en_core_sci_sm-0.4.0")
+nlp = spacy.load(spacy_weights_path)
 
 # Change as appropriate!
 tokenizer = AutoTokenizer.from_pretrained('allenai/scibert_scivocab_uncased')
