@@ -148,8 +148,12 @@ class PICOBot:
             self.PICO_models[element] = get_tagging_model(element)
 
 
-    def make_preds_for_abstract(self, ti_abs: str) -> dict:
+    def predict_for_ab(self, ab: dict) -> dict:
+
+        ti_abs = ab['ab'].strip()
+
         preds_d = {}
+
         
         abbrev_dict = extract_abbreviation_definition_pairs(doc_text=ti_abs)
 
@@ -157,11 +161,7 @@ class PICOBot:
             
             id2tag = ids2tags[element]
             predicted_spans = cleanup(predict_for_str(model, ti_abs, id2tag))
-
-        
-
             MeSH_terms = minimap.get_unique_terms(predicted_spans, abbrevs=abbrev_dict)
-
             preds_d[element] = predicted_spans
             preds_d[f"{element}_mesh"] = MeSH_terms
             
@@ -173,8 +173,46 @@ e.g.,
 
 import PICO_tagger
 bot = PICO_tagger.PICOBot()
+ti_abs = {"ti": 'A Cluster-Randomized Trial of Hydroxychloroquine for Prevention of Covid-19',
+          "ab": """ Background: Current strategies for preventing severe acute
+           respiratory syndrome coronavirus 2 (SARS-CoV-2) infection are
+           limited to nonpharmacologic interventions. Hydroxychloroquine has
+           been proposed as a postexposure therapy to prevent coronavirus
+           disease 2019 (Covid-19), but definitive evidence is lacking.
 
-abstract = 'Background: Current strategies for preventing severe acute respiratory syndrome coronavirus 2 (SARS-CoV-2) infection are limited to nonpharmacologic interventions. Hydroxychloroquine has been proposed as a postexposure therapy to prevent coronavirus disease 2019 (Covid-19), but definitive evidence is lacking.\n\nMethods: We conducted an open-label, cluster-randomized trial involving asymptomatic contacts of patients with polymerase-chain-reaction (PCR)-confirmed Covid-19 in Catalonia, Spain. We randomly assigned clusters of contacts to the hydroxychloroquine group (which received the drug at a dose of 800 mg once, followed by 400 mg daily for 6 days) or to the usual-care group (which received no specific therapy). The primary outcome was PCR-confirmed, symptomatic Covid-19 within 14 days. The secondary outcome was SARS-CoV-2 infection, defined by symptoms compatible with Covid-19 or a positive PCR test regardless of symptoms. Adverse events were assessed for up to 28 days.\n\nResults: The analysis included 2314 healthy contacts of 672 index case patients with Covid-19 who were identified between March 17 and April 28, 2020. A total of 1116 contacts were randomly assigned to receive hydroxychloroquine and 1198 to receive usual care. Results were similar in the hydroxychloroquine and usual-care groups with respect to the incidence of PCR-confirmed, symptomatic Covid-19 (5.7% and 6.2%, respectively; risk ratio, 0.86 [95% confidence interval, 0.52 to 1.42]). In addition, hydroxychloroquine was not associated with a lower incidence of SARS-CoV-2 transmission than usual care (18.7% and 17.8%, respectively). The incidence of adverse events was higher in the hydroxychloroquine group than in the usual-care group (56.1% vs. 5.9%), but no treatment-related serious adverse events were reported.\n\nConclusions: Postexposure therapy with hydroxychloroquine did not prevent SARS-CoV-2 infection or symptomatic Covid-19 in healthy persons exposed to a PCR-positive case patient. (Funded by the crowdfunding campaign YoMeCorono and others; BCN-PEP-CoV2 ClinicalTrials.gov number, NCT04304053.).'
-preds = bot.make_preds_for_abstract(abstract)
+          Methods: We conducted an open-label, cluster-randomized trial
+          involving asymptomatic contacts of patients with
+          polymerase-chain-reaction (PCR)-confirmed Covid-19 in Catalonia,
+          Spain. We randomly assigned clusters of contacts to the
+          hydroxychloroquine group (which received the drug at a dose of 800 mg
+          once, followed by 400 mg daily for 6 days) or to the usual-care
+          group (which received no specific therapy). The primary outcome was
+          PCR-confirmed, symptomatic Covid-19 within 14 days. The secondary
+          outcome was SARS-CoV-2 infection, defined by symptoms compatible with
+          Covid-19 or a positive PCR test regardless of symptoms. Adverse
+          events were assessed for up to 28 days.\n\nResults: The analysis
+          included 2314 healthy contacts of 672 index case patients with
+          Covid-19 who were identified between March 17 and April 28, 2020. A
+          total of 1116 contacts were randomly assigned to receive
+          hydroxychloroquine and 1198 to receive usual care. Results were
+          similar in the hydroxychloroquine and usual-care groups with respect
+          to the incidence of PCR-confirmed, symptomatic Covid-19 (5.7% and
+          6.2%, respectively; risk ratio, 0.86 [95% confidence interval, 0.52
+          to 1.42]). In addition, hydroxychloroquine was not associated with a
+          lower incidence of SARS-CoV-2 transmission than usual care (18.7% and
+          17.8%, respectively). The incidence of adverse events was higher in
+          the hydroxychloroquine group than in the usual-care group (56.1% vs.
+          5.9%), but no treatment-related serious adverse events were
+          reported.\n\nConclusions: Postexposure therapy with
+          hydroxychloroquine did not prevent SARS-CoV-2 infection or
+          symptomatic Covid-19 in healthy persons exposed to a PCR-positive
+          case patient. (Funded by the crowdfunding campaign YoMeCorono and
+          others; BCN-PEP-CoV2 ClinicalTrials.gov number, NCT04304053.).
+          """
+}
+
+
+
+preds = bot.predict_for_ab(ti_abs)
 '''
         

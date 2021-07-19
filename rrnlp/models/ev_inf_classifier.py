@@ -102,7 +102,8 @@ class PunchlineExtractorBot:
 
             return probs 
 
-    def make_preds_for_abstract(self, ti_and_abs: str) -> Tuple[str, float]:
+    def predict_for_ab(self, ab: dict) -> Tuple[str, float]:
+        ti_and_abs = ab['ti'] + '  ' + ab['ab']
         # Split into sentences via scispacy
         sentences = [s.text for s in encoder.nlp(ti_and_abs).sents]
         # Make punchline predictions
@@ -147,9 +148,11 @@ class EvInfBot:
 
         self.direction_strs = ["↓ sig. decrease", "— no diff", "↑ sig. increase"]
 
-    def infer_evidence(self, ti_and_abs: str) -> Tuple[str, str]:
+    def predict_for_ab(self, ab: dict) -> Tuple[str, str]:
+
+        
         # Get punchline.
-        pl_sent, pred_probs = self.pl_bot.make_preds_for_abstract(ti_and_abs)
+        pl_sent, pred_probs = self.pl_bot.predict_for_ab(ab)
 
         # Infer direction.
         direction_probs = self.inf_bot.predict_for_sentence(pl_sent) 
@@ -164,10 +167,44 @@ class EvInfBot:
 # sentence = ["patients in group b died more often"]
 # pred_punchline = pl_bot.predict_for_sentences(sentence) 
 #
-# abstract = '''Background: The FIDELIO-DKD trial (Finerenone in Reducing Kidney Failure and Disease Progression in Diabetic Kidney Disease) evaluated the effect of the nonsteroidal, selective mineralocorticoid receptor antagonist finerenone on kidney and cardiovascular outcomes in patients with chronic kidney disease and type 2 diabetes with optimized renin-angiotensin system blockade. Compared with placebo, finerenone reduced the composite kidney and cardiovascular outcomes. We report the effect of finerenone on individual cardiovascular outcomes and in patients with and without history of atherosclerotic cardiovascular disease (CVD). Methods: This randomized, double-blind, placebo-controlled trial included patients with type 2 diabetes and urine albumin-to-creatinine ratio 30 to 5000 mg/g and an estimated glomerular filtration rate ≥25 to <75 mL per min per 1.73 m2, treated with optimized renin-angiotensin system blockade. Patients with a history of heart failure with reduced ejection fraction were excluded. Patients were randomized 1:1 to receive finerenone or placebo. The composite cardiovascular outcome included time to cardiovascular death, myocardial infarction, stroke, or hospitalization for heart failure. Prespecified cardiovascular analyses included analyses of the components of this composite and outcomes according to CVD history at baseline. Results: Between September 2015 and June 2018, 13 911 patients were screened and 5674 were randomized; 45.9% of patients had CVD at baseline. Over a median follow-up of 2.6 years (interquartile range, 2.0-3.4 years), finerenone reduced the risk of the composite cardiovascular outcome compared with placebo (hazard ratio, 0.86 [95% CI, 0.75-0.99]; P=0.034), with no significant interaction between patients with and without CVD (hazard ratio, 0.85 [95% CI, 0.71-1.01] in patients with a history of CVD; hazard ratio, 0.86 [95% CI, 0.68-1.08] in patients without a history of CVD; P value for interaction, 0.85). The incidence of treatment-emergent adverse events was similar between treatment arms, with a low incidence of hyperkalemia-related permanent treatment discontinuation (2.3% with finerenone versus 0.8% with placebo in patients with CVD and 2.2% with finerenone versus 1.0% with placebo in patients without CVD). Conclusions: Among patients with chronic kidney disease and type 2 diabetes, finerenone reduced incidence of the composite cardiovascular outcome, with no evidence of differences in treatment effect based on preexisting CVD status. Registration: URL: https://www.clinicaltrials.gov; Unique identifier: NCT02540993.'''
-# ti = '''Finerenone and Cardiovascular Outcomes in Patients With Chronic Kidney Disease and Type 2 Diabetes'''
-# ti_abs = ti + " " + abstract
-# sent, prob = pl_bot.make_preds_for_abstract(ti_abs)
+# ti_abs = {"ti": 'A Cluster-Randomized Trial of Hydroxychloroquine for Prevention of Covid-19',
+#           "ab": """ Background: Current strategies for preventing severe acute
+#            respiratory syndrome coronavirus 2 (SARS-CoV-2) infection are
+#            limited to nonpharmacologic interventions. Hydroxychloroquine has
+#            been proposed as a postexposure therapy to prevent coronavirus
+#            disease 2019 (Covid-19), but definitive evidence is lacking.
+
+#           Methods: We conducted an open-label, cluster-randomized trial
+#           involving asymptomatic contacts of patients with
+#           polymerase-chain-reaction (PCR)-confirmed Covid-19 in Catalonia,
+#           Spain. We randomly assigned clusters of contacts to the
+#           hydroxychloroquine group (which received the drug at a dose of 800 mg
+#           once, followed by 400 mg daily for 6 days) or to the usual-care
+#           group (which received no specific therapy). The primary outcome was
+#           PCR-confirmed, symptomatic Covid-19 within 14 days. The secondary
+#           outcome was SARS-CoV-2 infection, defined by symptoms compatible with
+#           Covid-19 or a positive PCR test regardless of symptoms. Adverse
+#           events were assessed for up to 28 days.\n\nResults: The analysis
+#           included 2314 healthy contacts of 672 index case patients with
+#           Covid-19 who were identified between March 17 and April 28, 2020. A
+#           total of 1116 contacts were randomly assigned to receive
+#           hydroxychloroquine and 1198 to receive usual care. Results were
+#           similar in the hydroxychloroquine and usual-care groups with respect
+#           to the incidence of PCR-confirmed, symptomatic Covid-19 (5.7% and
+#           6.2%, respectively; risk ratio, 0.86 [95% confidence interval, 0.52
+#           to 1.42]). In addition, hydroxychloroquine was not associated with a
+#           lower incidence of SARS-CoV-2 transmission than usual care (18.7% and
+#           17.8%, respectively). The incidence of adverse events was higher in
+#           the hydroxychloroquine group than in the usual-care group (56.1% vs.
+#           5.9%), but no treatment-related serious adverse events were
+#           reported.\n\nConclusions: Postexposure therapy with
+#           hydroxychloroquine did not prevent SARS-CoV-2 infection or
+#           symptomatic Covid-19 in healthy persons exposed to a PCR-positive
+#           case patient. (Funded by the crowdfunding campaign YoMeCorono and
+#           others; BCN-PEP-CoV2 ClinicalTrials.gov number, NCT04304053.).
+#           """
+# }
+# sent, prob = pl_bot.predict_for_ab(ti_abs)
 #
 # inf_bot = ev_inf_classifier.InferenceBot()
 # inf_bot.predict_for_sentence(sent)
@@ -175,5 +212,5 @@ class EvInfBot:
 # OR in one swoop...
 #
 # ev_bot = ev_inf_classifier.EvInfBot()
-# ev_bot.infer_evidence(ti_abs)
+# ev_bot.predict_for_ab(ti_abs)
         
