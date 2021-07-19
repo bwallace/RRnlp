@@ -21,6 +21,8 @@ from rrnlp.models import encoder
 
 import pickle
 
+
+
 # Thresholds evaluated via bootstrap on Clinical hedges
 thresholds = {'bert': {'precise': 0.007859864302367195,
   'sensitive': 0.002569688226032838,
@@ -31,14 +33,15 @@ thresholds = {'bert': {'precise': 0.007859864302367195,
 
 device = rrnlp.models.device
 weights_path = rrnlp.models.weights_path
+doi = rrnlp.models.files_needed['RCT_classifier']['zenodo']
 
 # These are the paths to the classifier (clf) and (custom; top-k layer)
 # encoder weights for the RCT model.
-clf_weights_path = os.path.join(weights_path, "RCT_overall_abs_clf.pt")
+clf_weights_path = os.path.join(weights_path, f"{doi}_RCT_overall_abs_clf.pt")
 # Task-specific weights for the encoder
-shared_encoder_weights_path = os.path.join(weights_path, "RCT_encoder_custom.pt")
+shared_encoder_weights_path = os.path.join(weights_path, f"{doi}_RCT_encoder_custom.pt")
 
-with open(os.path.join(weights_path, "bert_LR.pck"), 'rb') as f:
+with open(os.path.join(weights_path, f"{doi}_bert_LR.pck"), 'rb') as f:
     lr = pickle.load(f)
 
 def get_RCT_model() -> Type[BertForSequenceClassification]:

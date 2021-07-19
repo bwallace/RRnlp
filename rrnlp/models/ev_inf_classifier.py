@@ -31,14 +31,16 @@ from rrnlp.models import encoder
 device = rrnlp.models.device 
 weights_path = rrnlp.models.weights_path
 
+doi = rrnlp.models.files_needed['ev_inf_classifier']['zenodo']
+
 # Paths to model weights for both the "punchline" extractor model and the 
 # "inference" model. Both comprise custom encoder layers and a top layer
 # weight vector.
-clf_punchline_weights_path        = os.path.join(weights_path, "evidence_identification_clf.pt") 
-shared_enc_punchline_weights_path = os.path.join(weights_path, "evidence_identification_encoder_custom.pt") 
+clf_punchline_weights_path        = os.path.join(weights_path, f"{doi}_evidence_identification_clf.pt") 
+shared_enc_punchline_weights_path = os.path.join(weights_path, f"{doi}_evidence_identification_encoder_custom.pt") 
 
-clf_inference_weights_path = os.path.join(weights_path, "inference_clf.pt")
-shared_enc_inference_weights_path = os.path.join(weights_path, "inference_encoder_custom.pt")
+clf_inference_weights_path = os.path.join(weights_path, f"{doi}_inference_clf.pt")
+shared_enc_inference_weights_path = os.path.join(weights_path, f"{doi}_inference_encoder_custom.pt")
 
 def get_punchline_extractor() -> Type[BertForSequenceClassification]:
     ''' 

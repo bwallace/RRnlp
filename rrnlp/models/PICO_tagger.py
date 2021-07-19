@@ -30,17 +30,18 @@ from rrnlp.models.util.schwartz_hearst import extract_abbreviation_definition_pa
 
 device = rrnlp.models.device 
 weights_path = rrnlp.models.weights_path
+doi = rrnlp.models.files_needed['PICO_tagger']['zenodo']
 
 # this dictionary specifies paths to the (torch) weights on disk for
 # the P, I, O models (both the classifier or 'clf' layer and the 
 # (custom, top layers of the) encoders.
 weights_paths = {
-    "p" : {"clf": os.path.join(weights_path, "population_clf.pt"),
-           "encoder" : os.path.join(weights_path, "population_encoder_custom.pt")},
-    "i" : {"clf": os.path.join(weights_path, "interventions_clf.pt"),
-           "encoder" : os.path.join(weights_path, "interventions_encoder_custom.pt")}, 
-    "o" : {"clf": os.path.join(weights_path, "outcomes_clf.pt"),
-           "encoder" : os.path.join(weights_path, "outcomes_encoder_custom.pt")}
+    "p" : {"clf": os.path.join(weights_path, f"{doi}_population_clf.pt"),
+           "encoder" : os.path.join(weights_path, f"{doi}_population_encoder_custom.pt")},
+    "i" : {"clf": os.path.join(weights_path, f"{doi}_interventions_clf.pt"),
+           "encoder" : os.path.join(weights_path, f"{doi}_interventions_encoder_custom.pt")}, 
+    "o" : {"clf": os.path.join(weights_path, f"{doi}_outcomes_clf.pt"),
+           "encoder" : os.path.join(weights_path, f"{doi}_outcomes_encoder_custom.pt")}
 }
 
 ids2tags = {

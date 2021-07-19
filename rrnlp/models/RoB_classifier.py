@@ -33,12 +33,13 @@ from rrnlp.models import encoder
 
 device = rrnlp.models.device 
 weights_path = rrnlp.models.weights_path
+doi = rrnlp.models.files_needed['RoB_classifier']['zenodo']
 
 # These are the paths to the classifier (clf) and (custom; top-k layer)
 # encoder weights for the RoB model.
-clf_weights_path = os.path.join(weights_path, "RoB_overall_abs_clf.pt")
+clf_weights_path = os.path.join(weights_path, f"{doi}_RoB_overall_abs_clf.pt")
 # Task-specific weights for the encoder
-shared_encoder_weights_path = os.path.join(weights_path, "RoB_encoder_custom.pt")
+shared_encoder_weights_path = os.path.join(weights_path, f"{doi}_RoB_encoder_custom.pt")
 
 def get_RoB_model() -> Type[BertForSequenceClassification]:
     ''' Load in and return RoB model weights. '''

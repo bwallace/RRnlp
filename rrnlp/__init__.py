@@ -10,13 +10,16 @@ from typing import Type, Tuple, List
 import warnings
 
 import rrnlp
+
 from rrnlp.models import PICO_tagger, ev_inf_classifier, \
                         sample_size_extractor, RoB_classifier_LR, \
                         RCT_classifier
 
 class TrialReader:
 
-    def __init__(self):   
+    def __init__(self):
+        
+
         self.RCT_model = RCT_classifier.AbsRCTBot()
         self.pico_model = PICO_tagger.PICOBot()
         self.inf_model  = ev_inf_classifier.EvInfBot()

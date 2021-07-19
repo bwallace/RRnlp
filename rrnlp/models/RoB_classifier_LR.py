@@ -31,14 +31,14 @@ import rrnlp
 
 weights_path = rrnlp.models.weights_path
 
-
+doi = rrnlp.models.files_needed['RoB_classifier_LR']['zenodo']
 
 class AbsRoBBot:
     ''' Lightweight container class that holds RoB logistic regression model '''
 
     def __init__(self):
         
-        with open(os.path.join(weights_path, 'bias_prob_clf.pck'), 'rb') as f:
+        with open(os.path.join(weights_path, f'{doi}_bias_prob_clf.pck'), 'rb') as f:
             self.clf = pickle.load(f)
 
         self.vec = HashingVectorizer(ngram_range=(1, 3), stop_words='english')
