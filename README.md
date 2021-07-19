@@ -68,16 +68,27 @@ Should yield the following dictionary
 
 # Installing
 
-The easiest way to install the latest version is directly from `github` via `pip`, as follows (assuming `conda` installed and that you want to create an `env`):
+The easiest way to install the latest version is via `pip`. 
+
+```
+pip install rrnlp
+```
+
+(Model weights will then be downloaded as needed when you import `rrnlp`.) We suggest using a custom environment, so if you're using `conda` this might look something like
 
 ```
     conda create --name rrnlp python
     conda activate rrnlp
+    pip install rrnlp
+```
+
+Alternatively, if you want to use the bleeding-edge (for better or worse) you can try installing directly via `git`
+
+```
     pip install git+https://github.com/bwallace/RRnlp.git
 ```
 
-(Alternatively can `clone` and then `install .` locally.)
-
+(Or can `clone` and then `install .` locally.)
 
 
 # Citation 
