@@ -11,20 +11,22 @@ def package_files(directory):
             paths.append(os.path.join('..', path, filename))
     return paths
 
-extra_files = package_files(path_to_weights)
+extra_files = ["../requirements.txt", 
+                os.path.join("../", path_to_weights, "weights_manifest.json")]
 extra_files.extend(package_files(path_to_minimap))
 
+#import pdb; pdb.set_trace()
 with open('requirements.txt') as f:
     required = f.read().splitlines()
 
 setup(name='rrnlp',
-      version='0.1',
+      version='0.41',
       description='NLP for EBM',
       url='https://github.com/bwallace/RRnlp',
       author='Byron Wallace, Iain Marshall',
       author_email='b.wallace@northeastern.edu',
       license='MIT',
-      packages=find_packages(), #['rrnlp', 'rrnlp.models'],
+      packages=find_packages(), 
       package_data={'': extra_files},
       install_requires=required,
       zip_safe=False)
