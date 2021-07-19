@@ -80,10 +80,10 @@ class AbsRCTBot:
 
         scores = {}
         for t in ['sensitive', 'balanced', 'precise']:
-            scores[f"is_rct_{t}"] = (prob_rct > thresholds['bert'][t])[0]
+            scores[f"is_rct_{t}"] = bool((prob_rct > thresholds['bert'][t])[0])
 
 
-        return {"is_rct": scores['is_rct_balanced'], "prob_rct": (prob_rct)[0], "scores": scores}
+        return {"is_rct": scores['is_rct_balanced'], "prob_rct": float((prob_rct)[0]), "scores": scores}
 
     def predict_for_ab(self, ab: dict) -> float:
         ti_and_abs = ab['ti'] + '  ' + ab['ab']
