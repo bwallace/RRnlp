@@ -45,7 +45,7 @@ for model_name, model_data in files_needed.items():
 
 		if not os.path.exists(f_path):
 		    import urllib.request     
-		    print(f"Attempting to fetch weights from Zenodo {url}")
+		    print(f"Attempting to fetch weights from Zenodo {url}...")
 		    # TODO this is slow so should probably add a progress bar;
 		    # at present it just kinda sits there for a long time.
 		    
