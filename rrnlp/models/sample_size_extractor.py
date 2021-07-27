@@ -344,40 +344,6 @@ def word2features(abstract_tokens: List[str], POS_tags: List[str], i:int,
                                 patients_mention_follows_within_window]}
 
 
-
-
-#####
-# On import, check if word vectors are where we expect; if not, fetch them.
-####
-def reporthook(count, block_size, total_size):
-    # shamelessly stolen: https://blog.shichao.io/2012/10/04/progress_speed_indicator_for_urlretrieve_in_python.html
-    global start_time
-    if count == 0:
-        start_time = time.time()
-        return
-    duration = time.time() - start_time
-    progress_size = int(count * block_size)
-    speed = int(progress_size / (1024 * duration))
-    percent = int(count * block_size * 100 / total_size)
-    sys.stdout.write("\r...%d%%, %d MB, %d KB/s, %d seconds passed" %
-                    (percent, progress_size / (1024 * 1024), speed, duration))
-    sys.stdout.flush()
-
-wv_url = "http://evexdb.org/pmresources/vec-space-models/PubMed-w2v.bin"
-if not os.path.exists(word_embeddings_path):
-    import urllib 
-    print(f"\nWhoops! PubMed-w2v.bin (static word vectors) not found at {word_embeddings_path}.")
-    print(f"Attempting to fetch (static) PubMed word vector weights from {wv_url} ... (Will take a bit; the file is ~2gb. Maybe make a coffee.)")
-    # TODO this is slow so should probably add a progress bar;
-    # at present it just kinda sits there for a long time.
-    
-    urllib.request.urlretrieve(wv_url, word_embeddings_path, reporthook)
-    if os.path.exists(word_embeddings_path):
-        print("success!")
-    else:
-        raise Exception("Sorry; unable to download static word vectors, and will not be able to use this model.")
-
-
 def example():
     from rrnlp.models import sample_size_extractor
     ss = sample_size_extractor.MLPSampleSizeClassifier()
