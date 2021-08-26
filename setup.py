@@ -15,12 +15,11 @@ extra_files = ["../requirements.txt",
                 os.path.join("../", path_to_weights, "weights_manifest.json")]
 extra_files.extend(package_files(path_to_minimap))
 
-#import pdb; pdb.set_trace()
 with open('requirements.txt') as f:
     required = f.read().splitlines()
 
 setup(name='rrnlp',
-      version='0.41',
+      version='0.1',
       description='NLP for EBM',
       url='https://github.com/bwallace/RRnlp',
       author='Byron Wallace, Iain Marshall',
