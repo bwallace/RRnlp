@@ -156,6 +156,11 @@ class MLPSampleSizeClassifier:
 
         # Extract dictionaries of features for each token in the abstract
         abstract_features, numeric_token_indices = abstract2features(abstract_tokens, POS_tags)
+        
+        # If there are no numbers in the input text, then just give up
+        if len(numeric_token_indices) == 0:
+            return {"num_randomized": None}
+
         # Convert to a m x d Tensor (m = number of tokens; d = input dims)
         X = torch.vstack(self.featurize_for_input(abstract_features)).float()
 
