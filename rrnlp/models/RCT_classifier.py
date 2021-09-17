@@ -25,11 +25,11 @@ import pickle
 
 # Thresholds evaluated via bootstrap on Clinical hedges
 thresholds = {'bert': {'precise': 0.007859864302367195,
-  'sensitive': 0.002569688226032838,
-  'balanced': 0.001556109585536539},
+  'sensitive': 0.0027666038410490913,
+  'balanced': 0.005165116927458068},
  'bert_ptyp': {'precise': 0.04210370868268101,
-  'sensitive': 0.005688371353031746,
-  'balanced': 0.0015407902417415272}}
+  'sensitive': 0.040919136397870086,
+  'balanced': 0.0034764010192827734}}
 
 device = rrnlp.models.device
 weights_path = rrnlp.models.weights_path
