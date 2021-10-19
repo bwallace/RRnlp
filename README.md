@@ -68,6 +68,8 @@ pp.pprint(preds)
 
 # Installing
 
+*NOTE*: As of mid-October 2021, installing `rrnlp` via `pip` does not cooperate well with python 3.10; we suggest using 3.8 for now (3.9 probably also fine).
+
 The easiest way to install the latest version is via `pip`. 
 
 ```bash
