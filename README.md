@@ -68,6 +68,8 @@ pp.pprint(preds)
 
 # Installing
 
+*NOTE*: As of mid-October 2021, installing `rrnlp` via `pip` does not cooperate well with python 3.10; we suggest using 3.9.
+
 The easiest way to install the latest version is via `pip`. 
 
 ```bash
@@ -77,7 +79,7 @@ pip install rrnlp
 (Model weights will then be downloaded as needed when you import `rrnlp`.) We suggest using a custom environment, so if you're using `conda` this might look something like
 
 ```bash
-conda create --name rrnlp python
+conda create --name rrnlp python=3.9
 conda activate rrnlp
 pip install rrnlp
 ```

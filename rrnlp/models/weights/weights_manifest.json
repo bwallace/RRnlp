@@ -13,5 +13,10 @@
     "RoB_classifier": {"zenodo": "5139998",
                           "files": ["RoB_overall_abs_clf.pt", "RoB_encoder_custom.pt"]},
     "sample_size_extractor": {"zenodo": "5139998",
-                          "files": ["sample_size_weights.pt", "RoB_encoder_custom.pt", "PubMed-w2v.bin"]}
+                          "files": ["sample_size_weights.pt", "RoB_encoder_custom.pt", "PubMed-w2v.bin"]},
+    "study_design_classifier":
+          {"zenodo": "5939332",
+           "files": ["cohort_lr.pck", "consensus_lr.pck", "ct_lr.pck", "ct_protocol_lr.pck", "guideline_lr.pck",
+            "qual_lr.pck", "rct_lr.pck", "sr_lr.pck"]
+          }
 }
