@@ -409,4 +409,7 @@ class StructuredSummaryBot:
     def summarize(self, p_spans, i_spans, o_spans, punchline_text):
         # TODO: replace with real generated summary
         # currently this is just a dummy summarizer that spits out the punchline of the first study
-        return {'summary': punchline_text[0]}
+        summary = punchline_text[0].split()
+        aspect_weights = [[0, 0, 0, 1, 0] for tok in summary]
+        aspect_indices = {'population': 0, 'intervention': 1, 'outcome': 2, 'punchline': 3, 'background': 4}
+        return {'summary': summary, 'aspect_indices': aspect_indices, 'aspect_weights': aspect_weights}
