@@ -29,7 +29,8 @@ from rrnlp.models import encoder
 device = rrnlp.models.device 
 weights_path = rrnlp.models.weights_path
 doi = rrnlp.models.files_needed['sample_size_extractor']['zenodo']
-word_embeddings_path = os.path.join(weights_path, f"PubMed-w2v.bin") # note that this is not DOI'ed - but fetched from the gensim source
+# word_embeddings_path = os.path.join(weights_path, f"PubMed-w2v.bin") # note that this is not DOI'ed - but fetched from the gensim source
+word_embeddings_path = os.path.join(weights_path, f"{doi}_PubMed-w2v.bin")
 MLP_weights_path     = os.path.join(weights_path, f"{doi}_sample_size_weights.pt")
 
 

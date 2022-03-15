@@ -13,7 +13,7 @@ import rrnlp
 
 from rrnlp.models import PICO_tagger, ev_inf_classifier, \
                         sample_size_extractor, RoB_classifier_LR, \
-                        RCT_classifier
+                        RCT_classifier, Structured_summarizer
 
 class TrialReader:
 
@@ -104,3 +104,26 @@ class TrialReader:
 #           """
 # }
 # preds = trial_reader.read_trial(ti_abs)
+
+
+class MetaReviewer:
+    """Produces a summary of multiple related rcts"""
+    def __init__(self):
+        self.trial_reader = TrialReader()
+        self.model = Structured_summarizer.StructuredSummaryBot()
+
+    def review_trials(self, abs: List[dict]):
+        p_spans, i_spans, o_spans, punchline_text = self.get_structured_source(abs)
+        return self.model.summarize(p_spans, i_spans, o_spans, punchline_text)
+
+    def get_structured_source(self, abs: List[dict]):
+        p_spans, i_spans, o_spans, punchline_text = [], [], [], []
+        for ab in abs:
+            out = self.trial_reader.read_trial(ab, task_list=["rct_bot", "pico_span_bot", "punchline_bot"])
+            span_bot_output = out['pico_span_bot']
+            p_spans.append(span_bot_output['p'])
+            i_spans.append(span_bot_output['i'])
+            o_spans.append(span_bot_output['o'])
+            punchline_bot_output = out['punchline_bot']
+            punchline_text.append(punchline_bot_output['punchline_text'])
+        return p_spans, i_spans, o_spans, punchline_text
