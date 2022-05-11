@@ -65,6 +65,22 @@ pp.pprint(preds)
 'rct_bot': {'is_rct': True, 'prob_rct': 0.6828127889603965, 'scores': {'is_rct_balanced': True, 'is_rct_precise': True, 'is_rct_sensitive': True}},
 'sample_size_bot': {'num_randomized': '2314'}}
 ```
+Meta Reviewer Output: 
+
+This model takes multiple abstracts as inputs and provides summaries 
+The 'summary' key is the generated summary of the model output. Each (Longformer tokenzied) token in the summary is associated with a
+ contributing source which is denoted in the token aspects
+
+{'summary': ' There is insufficient evidence to support or not support the use of <interventions> oral acyclovir as an adjunctive therapy for <population> infants with infectious mononucleosis. There is a need for further well-designed randomised controlled trials in this area.', 
+'summary_token_aspect': ['population', 'punchline_text', 'punchline_text', 'punchline_text', 'punchline_text', 'punchline_text', 'punchline_text', 'punchline_text', 'punchline_text', 'punchline_text', 'punchline_text', 'punchline_text', 'punchline_text', 'punchline_text', 'interventions', 'interventions', 'interventions', 'interventions',
+        'interventions', 'interventions', 'interventions', 'interventions', 'punchline_text', 'punchline_text', 'punchline_text', 'punchline_text', 'punchline_text', 'punchline_text', 1., 'population', 'population', 'population', 'population', 'population', 'population', 'population',
+        'population', 'population', 'other', 'other', 'other', 'other', 'other', 'other', 'other', 'other', 'other'],
+'template_summaries': {
+            'nodiff': ['There is insufficient evidence to determine whether interventions oral acycloviruses is beneficial for  in infectious mononucleosis ', 'There is no  evidence that interventions oral acyclovir has an effect on outcomes symptoms of outcomes oropharyngeal ebv infection in infectious mononucleosis ', 'There is no strong evidence that interventions oral acyclovir has an effect on outcomes symptoms of outcomes oropharyngeal ebv infection when compared with oral acyclovir in people with infectious mononucleosis '], 
+
+            'diff': [' there appears to be effective for the treatment of population infants with infectious mononucleosis in', 'This review shows a trend towards greater effectiveness of interventions oral acyclovir compared to interventions placebo in treating infectious mononucleosis in infectious mononucleosis ', 'The results of this review support the use of interventions oral acyclovir to treat infectious mononucleosis in patients with infectious mononucleosis '], 
+            
+            'pred_direction': 'no_diff'}}
 
 # Installing
 
