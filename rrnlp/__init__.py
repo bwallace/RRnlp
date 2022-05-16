@@ -39,7 +39,8 @@ class TrialReader:
                    "bias_ab_bot", "sample_size_bot"]
 
         return_dict = {}
-
+        return_dict["rct_bot"] = {"is_rct": False}  
+        
         if process_rcts_only:
             task_list.remove('rct_bot')
             # First: is this an RCT? If not, the rest of the models do not make
