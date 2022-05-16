@@ -19,7 +19,7 @@ with open('requirements.txt') as f:
     required = f.read().splitlines()
 
 setup(name='rrnlp',
-      version='0.42106',
+      version='1.0.3',
       description='NLP for EBM',
       url='https://github.com/bwallace/RRnlp',
       author='Byron Wallace, Iain Marshall',
