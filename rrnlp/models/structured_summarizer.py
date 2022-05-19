@@ -6,22 +6,42 @@ import pytorch_lightning as pl
 import torch
 import rrnlp
 from rrnlp.models import ev_inf_classifier
+import os
+
+weights_path = rrnlp.models.weights_path
+doi = rrnlp.models.files_needed['RCT_summarizer']['zenodo']
+
+model_weight_file = os.path.join(weights_path, f"{doi}_refined_state_dict.ckpt")
 
 device = 'cpu' 
 
-class LitModel(pl.LightningModule):
-    # Instantiate the model
-    def __init__(self, learning_rate, tokenizer, model, max_len, labels_tag_weights):
-        super().__init__()
-        self.tokenizer = tokenizer
-        self.model = model
-        self.model.resize_token_embeddings(len(self.tokenizer))
-        self.model._make_decoders(4)
-        self.model.to(torch.device(device))
-        self.learning_rate = learning_rate
-        self.max_len = max_len
-        self.labels_tag_weights = labels_tag_weights
-        self.generator = Data2TextGenerator(self.model, self.tokenizer)
+
+additional_special_tokens = ['<population>', '</population>',
+                            '<interventions>', '</interventions>',
+                            '<outcomes>', '</outcomes>',
+                            '<punchline_text>', '</punchline_text>',
+                            '<study>', '</study>', "<sep>"]
+
+def load_layers(saved_layers, model):
+    model_updated_state_dict = model.state_dict()
+
+    for layer_name, layer_params in model.state_dict().items():
+        saved_layer_name = 'model.'+layer_name
+
+        if saved_layer_name  in saved_layers.keys():
+            model_updated_state_dict[layer_name] = saved_layers[saved_layer_name]
+            #print('FOUND', saved_layer_name)
+        else:
+            if 'decoder' in layer_name:
+                decoder_key = layer_name.split('.')
+                shared_decoder_key =  ['decoder'] + decoder_key[1:]
+                shared_decoder_key = '.'.join(shared_decoder_key)
+                saved_layer_name = 'model.'+shared_decoder_key
+                model_updated_state_dict[layer_name]  = saved_layers[saved_layer_name]
+                print('SHARED', layer_name, saved_layer_name)
+            else:
+                print(layer_name)
+    return model_updated_state_dict
 
 
 class StructuredSummaryBot():
@@ -29,16 +49,21 @@ class StructuredSummaryBot():
         
         self.logit_map = {0: 'population', 1: 'interventions', 2: 'outcomes', 3: 'punchline_text', 4: 'other'}
         self.dir_map =  {'— no diff': 'no_diff', '↓ sig. decrease': 'diff', '↑ sig. increase': 'diff'}
-        checkpoint_file = '/scratch/ramprasad.sa/checkpoint_files/led_multilm_supervised_ghost_multidec/epoch=1-val_loss=4.01-multidec.ckpt'
         
         self.tokenizer = tokenizer
-        model = LEDForDataToTextGeneration_MultiLM_Background.from_pretrained('allenai/led-base-16384')
+        self.tokenizer.add_tokens(additional_special_tokens)
 
-        lit_model = LitModel.load_from_checkpoint(checkpoint_path=checkpoint_file, learning_rate = 3e-5, \
-                                            tokenizer = self.tokenizer, \
-                                            model = model, max_len = max_input_len, labels_tag_weights = None)
-        self.model = lit_model.model
-        self.generator = lit_model.generator
+
+        self.model = LEDForDataToTextGeneration_MultiLM_Background.from_pretrained('allenai/led-base-16384')
+        self.model.resize_token_embeddings(len(self.tokenizer)) 
+        self.model._make_decoders(4)
+        self.model.to(torch.device(device))
+
+        pretrained_weights = torch.load(model_weight_file)
+        pretrained_weights = load_layers(pretrained_weights, self.model)
+        self.model.load_state_dict(pretrained_weights)
+
+        self.generator = Data2TextGenerator(self.model, self.tokenizer)
         self.template_generator = TemplateGenerator(self.tokenizer, torch.device(device), self.generator)
         self.templates = self.template_generator.templates
         self.ev_bot = ev_inf_classifier.EvInfBot()

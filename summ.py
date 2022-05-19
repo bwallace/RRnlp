@@ -1,4 +1,3 @@
-from curses import meta
 import rrnlp
 
 meta_reviewer = rrnlp.MetaReviewer()
