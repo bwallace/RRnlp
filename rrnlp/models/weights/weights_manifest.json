@@ -18,5 +18,10 @@
           {"zenodo": "5939332",
            "files": ["cohort_lr.pck", "consensus_lr.pck", "ct_lr.pck", "ct_protocol_lr.pck", "guideline_lr.pck",
             "qual_lr.pck", "rct_lr.pck", "sr_lr.pck"]
+          },
+    "RCT_summarizer":
+          {
+            "zenodo" : "6558529",
+            "files": ["refined_state_dict.ckpt"]
           }
 }
