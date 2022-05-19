@@ -1,4 +1,5 @@
 
+from transformers import LEDTokenizer
 from rrnlp.models.RCT_summarization_model import LEDForDataToTextGeneration_MultiLM_Background
 from rrnlp.models.util.rct_summarize.model_inference import Data2TextGenerator
 from rrnlp.models.util.rct_summarize.model_template_inference import TemplateGenerator
@@ -6,6 +7,7 @@ import pytorch_lightning as pl
 import torch
 import rrnlp
 from rrnlp.models import ev_inf_classifier
+
 import os
 
 weights_path = rrnlp.models.weights_path
@@ -45,12 +47,14 @@ def load_layers(saved_layers, model):
 
 
 class StructuredSummaryBot():
-    def __init__(self, tokenizer, max_input_len):
+    def __init__(self, max_input_len = 3072):
         
         self.logit_map = {0: 'population', 1: 'interventions', 2: 'outcomes', 3: 'punchline_text', 4: 'other'}
         self.dir_map =  {'— no diff': 'no_diff', '↓ sig. decrease': 'diff', '↑ sig. increase': 'diff'}
         
-        self.tokenizer = tokenizer
+        self.tokenizer = LEDTokenizer.from_pretrained("allenai/led-base-16384", bos_token="<s>",
+                                                            eos_token="</s>",
+                                                            pad_token = "<pad>")
         self.tokenizer.add_tokens(additional_special_tokens)
 
 
