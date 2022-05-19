@@ -13,7 +13,7 @@ import rrnlp
 
 from rrnlp.models import PICO_tagger, ev_inf_classifier, \
                         sample_size_extractor, RoB_classifier_LR, \
-                        RCT_classifier, Structured_summarizer
+                        RCT_classifier, structured_summarizer
 
 class TrialReader:
 
@@ -110,7 +110,7 @@ class MetaReviewer:
     """Produces a summary of multiple related rcts"""
     def __init__(self):
         self.trial_reader = TrialReader()
-        self.model = Structured_summarizer.StructuredSummaryBot()
+        self.model = structured_summarizer.StructuredSummaryBot()
 
     def review_trials(self, abs: List[dict]):
         p_spans, i_spans, o_spans, punchline_text = self.get_structured_source(abs)
