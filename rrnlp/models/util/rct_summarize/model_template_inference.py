@@ -58,7 +58,7 @@ class TemplateGenerator():
                         return start_idx
                 else:
                     #print(o, l, mode_pw_val, prev_word_idx)
-                    if not mode_pw_val or l == 4.0:
+                    if not mode_pw_val or l in [4.0, 3.0]:
                         #print(i)
                         if i > start_idx + 1:
                             end_idx = prev_word_idx - 1
@@ -93,7 +93,7 @@ class TemplateGenerator():
         control_key_map = { 'population': 0, 'interventions': 1, 'outcomes': 2, 'punchline_text': 3, 'background' : 4}
         control_logit = control_key_map[control_key] ## the logit for current aspect of interest
         start_idx = 0 if '<s>' not in outputs_and_logits[0][0] else 1
-        end_idx = self.make_start_end_idx(outputs_and_logits, [0, 1, 2], start_idx = start_idx, get_start_idx = False)
+        end_idx = self.make_start_end_idx(outputs_and_logits, [control_logit], start_idx = start_idx, get_start_idx = False)
         return start_idx, end_idx
 
 

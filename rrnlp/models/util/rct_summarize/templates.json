@@ -1,11 +1,9 @@
 {
     
-    "diff": ["__interventions__ appears to be effective for the treatment of __outcomes__ in __population__", 
-              "This review shows a trend towards greater effectiveness of __interventions__ compared to __interventions__ in treating __outcomes__ in __population__",
+    "diff": ["This review shows a trend towards greater effectiveness of __interventions__ compared to __interventions__ in treating __outcomes__ in __population__",
               "The results of this review support the use of __interventions__ to treat  __outcomes__ in patients with __population__ "
     ],
     "no_diff": ["There is insufficient evidence to determine whether __interventions__ is beneficial for __outcomes__ in __population__",
-                "There is no  evidence that __interventions__ has an effect on __outcomes__ in __population__", 
                 "There is no strong evidence that __interventions__ has an effect on __outcomes__ when compared with __interventions__ in people with __population__"
     ]
 

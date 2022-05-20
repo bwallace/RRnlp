@@ -337,10 +337,10 @@ class LEDForDataToTextGeneration_MultiLM_Background(LEDPreTrainedModel):
         if control_key == 'population':
             lm_logits = lm_logits0
 
-        elif control_key == 'intervention':
+        elif control_key == 'interventions':
             lm_logits = lm_logits1
 
-        elif control_key == 'outcome':
+        elif control_key == 'outcomes':
             lm_logits = lm_logits2
 
         elif control_key == 'punchline_text':

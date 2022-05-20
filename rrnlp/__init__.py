@@ -123,13 +123,13 @@ class MetaReviewer:
         self.tokenizer = LEDTokenizer.from_pretrained("allenai/led-base-16384", bos_token="<s>",
                                                                     eos_token="</s>",
                                                                     pad_token = "<pad>")
-        self.max_length = 2048
+        self.max_length = 3072
         self.pad_to_max_length = True
 
                                                                     
         self.tokenizer.add_tokens(additional_special_tokens)
 
-        self.model = structured_summarizer.StructuredSummaryBot(self.tokenizer, self.max_length)
+        self.model = structured_summarizer.StructuredSummaryBot( self.max_length)
 
     def get_structured_source(self, abs: List[dict]):
         p_spans, i_spans, o_spans, punchline_text = [], [], [], []
