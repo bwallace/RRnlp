@@ -120,6 +120,9 @@ class TemplateGenerator():
                     input_text += phrase 
 
             if control_key:
+                    if control_key in ['outcomes', 'population', 'interventions']:
+                        input_text += ' <%s>'%(control_key)
+                    
                     input_ids = self.tokenizer(input_text, return_tensors = 'pt' )['input_ids']
                     start_id = torch.tensor([2])
                     input_ids = torch.cat([start_id, input_ids[0][1:-1]]).tolist() ## add eos token to input to the decoder followed by phrase tokens

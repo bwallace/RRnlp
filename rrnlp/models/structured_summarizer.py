@@ -84,7 +84,9 @@ class StructuredSummaryBot():
                                     repetition_penalty=1.0, length_penalty=1.0,
                                     return_dict_in_generate=False, device = device,
                                     temperature = 0.9, do_sample = False, debug = False)
+                generated_text = ' '.join([w for w in generated_text.split(' ') if w not in additional_special_tokens])
                 print(generated_text) 
+
                 templates_generated_text.append(generated_text)
             return templates_generated_text 
 
@@ -108,16 +110,18 @@ class StructuredSummaryBot():
     def summarize(self, batch):
         # TODO: replace with real generated summary
         # currently this is just a dummy summarizer that spits out the punchline of the first study
+        print('summarizing ...')
         outputs, logits = self.generator.generate(batch, num_beams = 4,  max_length = 400, min_length = 13, \
             repetition_penalty = 1.0, length_penalty = 1.0, early_stopping = True, \
                 return_dict_in_generate = False, control_key = None, no_repeat_ngram_size = 3, \
                     background_lm = True, device = torch.device(device))
         
         logits = self._get_logit_mapped(logits)
-
+        
         model_output = ' '.join([self.tokenizer.decode(w, skip_special_tokens=True, clean_up_tokenization_spaces=True) for w in outputs])
+        model_output = ' '.join([w for w in model_output.split(' ') if w not in additional_special_tokens])
         pred_direction = self._get_summary_direction(model_output)
-
+        print('summarizing with templates ...')
         model_outputs_temp_diff, model_outputs_temp_nodiff = self.template_summary(batch)
         
         temp_dict = {'nodiff': model_outputs_temp_nodiff, 'diff':  model_outputs_temp_diff, 'pred_direction': pred_direction}

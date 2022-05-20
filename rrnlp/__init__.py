@@ -135,8 +135,8 @@ class MetaReviewer:
         p_spans, i_spans, o_spans, punchline_text = [], [], [], []
         for ab in abs:
             ti_ab = {"ti": "", "ab": ab}
+            print('Extracting PICO elements from trials ...')
             out = self.trial_reader.read_trial(ti_ab, task_list=["rct_bot", "pico_span_bot", "punchline_bot"])
-            print(out)
             span_bot_output = out['pico_span_bot']
             p_spans.append(span_bot_output['p'])
             i_spans.append(span_bot_output['i'])
@@ -174,7 +174,6 @@ class MetaReviewer:
 
     def summarize(self, abs):
         batch = self.process_spans(abs)
-        print(batch)
         print(self.model.summarize(batch))
 
 
