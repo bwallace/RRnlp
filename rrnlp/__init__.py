@@ -164,16 +164,30 @@ class MetaReviewer:
 
     
 
-    def process_spans(self,abs ):
-        p_spans, i_spans, o_spans, punchline_text = self.get_structured_source(abs)
+    # def process_spans(self,abs ):
+    #     p_spans, i_spans, o_spans, punchline_text = self.get_structured_source(abs)
+    #     print('POPULATION', p_spans)
+    #     print('INTERVENTIONS', i_spans)
+    #     p_input_ids, p_attn_masks = self.run_tokenizer(p_spans, 'population')
+    #     i_input_ids, i_attn_masks = self.run_tokenizer(i_spans, 'interventions')
+    #     o_input_ids, o_attn_masks = self.run_tokenizer(o_spans, 'outcomes')
+    #     ptext_input_ids, ptext_attn_masks = self.run_tokenizer(punchline_text, 'punchline_text')
+    #     return p_input_ids, p_attn_masks, i_input_ids, i_attn_masks, o_input_ids, o_attn_masks, ptext_input_ids, ptext_attn_masks
+
+    def process_spans(self, data):
+        p_spans = [each['population'] for each in data]
+        i_spans = [each['interventions'] for each in data]
+        o_spans = [each['outcomes'] for each in data]
+        ptext_spans = [each['punchline_text'] for each in data]
+        
         p_input_ids, p_attn_masks = self.run_tokenizer(p_spans, 'population')
         i_input_ids, i_attn_masks = self.run_tokenizer(i_spans, 'interventions')
         o_input_ids, o_attn_masks = self.run_tokenizer(o_spans, 'outcomes')
         ptext_input_ids, ptext_attn_masks = self.run_tokenizer(punchline_text, 'punchline_text')
         return p_input_ids, p_attn_masks, i_input_ids, i_attn_masks, o_input_ids, o_attn_masks, ptext_input_ids, ptext_attn_masks
-
-    def summarize(self, abs):
-        batch = self.process_spans(abs)
+        
+    def summarize(self, data):
+        batch = self.process_spans(data)
         print(self.model.summarize(batch))
 
 

@@ -7,7 +7,7 @@ import pytorch_lightning as pl
 import torch
 import rrnlp
 from rrnlp.models import ev_inf_classifier
-
+from collections import Counter
 import os
 
 weights_path = rrnlp.models.weights_path
@@ -63,7 +63,7 @@ class StructuredSummaryBot():
         self.model._make_decoders(4)
         self.model.to(torch.device(device))
 
-        pretrained_weights = torch.load(model_weight_file)
+        pretrained_weights = torch.load(model_weight_file, map_location=torch.device('cpu') )
         pretrained_weights = load_layers(pretrained_weights, self.model)
         self.model.load_state_dict(pretrained_weights)
 
@@ -111,19 +111,65 @@ class StructuredSummaryBot():
         # TODO: replace with real generated summary
         # currently this is just a dummy summarizer that spits out the punchline of the first study
         print('summarizing ...')
-        outputs, logits = self.generator.generate(batch, num_beams = 4,  max_length = 400, min_length = 13, \
+        outputs, logits = self.generator.generate(batch, num_beams = 2,  max_length = 25, min_length = 5, \
             repetition_penalty = 1.0, length_penalty = 1.0, early_stopping = True, \
                 return_dict_in_generate = False, control_key = None, no_repeat_ngram_size = 3, \
                     background_lm = True, device = torch.device(device))
         
         logits = self._get_logit_mapped(logits)
         
-        model_output = ' '.join([self.tokenizer.decode(w, skip_special_tokens=True, clean_up_tokenization_spaces=True) for w in outputs])
-        model_output = ' '.join([w for w in model_output.split(' ') if w not in additional_special_tokens])
-        pred_direction = self._get_summary_direction(model_output)
-        print('summarizing with templates ...')
-        model_outputs_temp_diff, model_outputs_temp_nodiff = self.template_summary(batch)
+        all_w_logits = []
+        w = []
+        word_logits = []
+        print(len(outputs[0]), len(logits))
+        print(self.tokenizer.decode(outputs[0], skip_special_tokens = True))
         
-        temp_dict = {'nodiff': model_outputs_temp_nodiff, 'diff':  model_outputs_temp_diff, 'pred_direction': pred_direction}
+        def process_logits(word_logits):
+            word_logits_count = dict(Counter(word_logits))
+            shortlisted_aspects = [k for k,v in word_logits_count.items() if v ==  max(word_logits_count.values())] 
+            word_logit = shortlisted_aspects[0]
+            if len(shortlisted_aspects) > 1:
+                if word_logits[0] in shortlisted_aspects:
+                    word_logit = word_logits[0]
+            return word_logit
+            
+        for t, l in list(zip(outputs[0], list(logits))):
+            t = self.tokenizer.decode(t)
+            print('TRUE', t, l)
+            if t not in additional_special_tokens:
+            
 
-        return {'summary': model_output, 'aspect_indices': logits, 'template_summaries': temp_dict }
+                if t != t.strip():
+                    word_logit = process_logits(word_logits)
+                    
+                    all_w_logits.append((''.join(w), word_logit))
+                    w = [t]
+                    word_logits = [l]
+
+                else:
+                    w.append(t)
+                    word_logits.append(l)
+            else:
+                all_w_logits.append((''.join(w), process_logits(word_logits)))
+                w = []
+                word_logits = []
+        
+        if w:
+            all_w_logits.append((''.join(w), process_logits(word_logits)))
+        
+        print(all_w_logits)
+    
+        #model_output = ' '.join([self.tokenizer.decode(w) for w in outputs])
+        model_output = [each[0] for each in all_w_logits]
+        logits = [each[1] for each in all_w_logits]
+        #model_output = ' '.join([w for w in model_output.split(' ') if w not in additional_special_tokens])
+        
+        #pred_direction = self._get_summary_direction(model_output)
+        #print('summarizing with templates ...')
+        #model_outputs_temp_diff, model_outputs_temp_nodiff = self.template_summary(batch)
+        
+        #temp_dict = {'nodiff': model_outputs_temp_nodiff, 'diff':  model_outputs_temp_diff, 'pred_direction': pred_direction}
+        summary = ' '.join(model_output)
+        print('SUMMARY', summary)
+        print('LOGITS', [each[1] for each in all_w_logits])
+        return {'summary': model_output, 'aspect_indices': logits }
