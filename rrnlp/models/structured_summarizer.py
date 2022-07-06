@@ -2,7 +2,7 @@
 from transformers import LEDTokenizer
 from rrnlp.models.RCT_summarization_model import LEDForDataToTextGeneration_MultiLM_Background
 from rrnlp.models.util.rct_summarize.model_inference import Data2TextGenerator
-from rrnlp.models.util.rct_summarize.model_template_inference import TemplateGenerator
+#`from rrnlp.models.util.rct_summarize.model_template_inference import TemplateGenerator
 import pytorch_lightning as pl
 import torch
 import rrnlp
@@ -68,9 +68,9 @@ class StructuredSummaryBot():
         self.model.load_state_dict(pretrained_weights)
 
         self.generator = Data2TextGenerator(self.model, self.tokenizer)
-        self.template_generator = TemplateGenerator(self.tokenizer, torch.device(device), self.generator)
-        self.templates = self.template_generator.templates
-        self.ev_bot = ev_inf_classifier.EvInfBot()
+        #self.template_generator = TemplateGenerator(self.tokenizer, torch.device(device), self.generator)
+        #self.templates = self.template_generator.templates
+        #self.ev_bot = ev_inf_classifier.EvInfBot()
         
         
 
@@ -111,7 +111,7 @@ class StructuredSummaryBot():
         # TODO: replace with real generated summary
         # currently this is just a dummy summarizer that spits out the punchline of the first study
         print('summarizing ...')
-        outputs, logits = self.generator.generate(batch, num_beams = 2,  max_length = 25, min_length = 5, \
+        outputs, logits = self.generator.generate(batch, num_beams = 2,  max_length = 10, min_length = 3, \
             repetition_penalty = 1.0, length_penalty = 1.0, early_stopping = True, \
                 return_dict_in_generate = False, control_key = None, no_repeat_ngram_size = 3, \
                     background_lm = True, device = torch.device(device))
@@ -160,8 +160,8 @@ class StructuredSummaryBot():
         print(all_w_logits)
     
         #model_output = ' '.join([self.tokenizer.decode(w) for w in outputs])
-        model_output = [each[0] for each in all_w_logits]
-        logits = [each[1] for each in all_w_logits]
+        model_output = [each[0].strip() for each in all_w_logits[1:]]
+        logits = [each[1] for each in all_w_logits[1:]]
         #model_output = ' '.join([w for w in model_output.split(' ') if w not in additional_special_tokens])
         
         #pred_direction = self._get_summary_direction(model_output)
@@ -170,6 +170,6 @@ class StructuredSummaryBot():
         
         #temp_dict = {'nodiff': model_outputs_temp_nodiff, 'diff':  model_outputs_temp_diff, 'pred_direction': pred_direction}
         summary = ' '.join(model_output)
-        print('SUMMARY', summary)
+        print('SUMMARY', summary, summary.split(' '))
         print('LOGITS', [each[1] for each in all_w_logits])
-        return {'summary': model_output, 'aspect_indices': logits }
+        return {'summary': summary, 'aspect_indices': logits }

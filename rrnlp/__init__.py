@@ -111,7 +111,7 @@ class TrialReader:
 class MetaReviewer:
     """Produces a summary of multiple related rcts"""
     def __init__(self):
-        self.trial_reader = TrialReader()
+        #self.trial_reader = TrialReader()
         self.max_input_len = 3072
         additional_special_tokens = ['<population>', '</population>',
                             '<interventions>', '</interventions>',
@@ -183,11 +183,11 @@ class MetaReviewer:
         p_input_ids, p_attn_masks = self.run_tokenizer(p_spans, 'population')
         i_input_ids, i_attn_masks = self.run_tokenizer(i_spans, 'interventions')
         o_input_ids, o_attn_masks = self.run_tokenizer(o_spans, 'outcomes')
-        ptext_input_ids, ptext_attn_masks = self.run_tokenizer(punchline_text, 'punchline_text')
+        ptext_input_ids, ptext_attn_masks = self.run_tokenizer(ptext_spans, 'punchline_text')
         return p_input_ids, p_attn_masks, i_input_ids, i_attn_masks, o_input_ids, o_attn_masks, ptext_input_ids, ptext_attn_masks
         
     def summarize(self, data):
         batch = self.process_spans(data)
-        print(self.model.summarize(batch))
+        return self.model.summarize(batch)
 
 
