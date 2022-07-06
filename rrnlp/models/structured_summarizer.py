@@ -13,7 +13,7 @@ import os
 weights_path = rrnlp.models.weights_path
 doi = rrnlp.models.files_needed['RCT_summarizer']['zenodo']
 
-model_weight_file = os.path.join(weights_path, f"{doi}_refined_state_dict.ckpt")
+model_weight_file = os.path.join(weights_path, f"{doi}_refined_state_dict_v2.ckpt")
 
 device = 'cpu' 
 

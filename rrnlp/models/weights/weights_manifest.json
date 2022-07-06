@@ -21,7 +21,7 @@
           },
     "RCT_summarizer":
           {
-            "zenodo" : "6558529",
-            "files": ["refined_state_dict.ckpt"]
+            "zenodo" : "6801925",
+            "files": ["refined_state_dict_v2.ckpt"]
           }
 }
