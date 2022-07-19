@@ -19,9 +19,15 @@
            "files": ["cohort_lr.pck", "consensus_lr.pck", "ct_lr.pck", "ct_protocol_lr.pck", "guideline_lr.pck",
             "qual_lr.pck", "rct_lr.pck", "sr_lr.pck"]
           },
-    "RCT_summarizer":
+    "RCT_summarizer_structured":
           {
-            "zenodo" : "6801925",
-            "files": ["refined_state_dict_v2.ckpt"]
-          }
+            "zenodo" : "6851187",
+            "files": ["refined_state_dict_multilm.ckpt"]
+          },
+   "RCT_summarize_vanilla":{
+          "zenodo": "6851817",
+	  "files": ["refined_state_dict_vanilla.ckpt"]
+
+	  }
+
 }

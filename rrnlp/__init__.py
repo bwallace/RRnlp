@@ -106,13 +106,16 @@ class TrialReader:
 #           """
 # }
 # preds = trial_reader.read_trial(ti_abs)
+'''
 
+'''
 
 class MetaReviewer:
-    """Produces a summary of multiple related rcts"""
-    def __init__(self):
+    def __init__(self, model_type):
         #self.trial_reader = TrialReader()
-        self.max_input_len = 3072
+        
+        self.model_type = model_type
+        
         additional_special_tokens = ['<population>', '</population>',
                             '<interventions>', '</interventions>',
                             '<outcomes>', '</outcomes>',
@@ -123,71 +126,57 @@ class MetaReviewer:
         self.tokenizer = LEDTokenizer.from_pretrained("allenai/led-base-16384", bos_token="<s>",
                                                                     eos_token="</s>",
                                                                     pad_token = "<pad>")
-        self.max_length = 3072
-        self.pad_to_max_length = True
-
-                                                                    
         self.tokenizer.add_tokens(additional_special_tokens)
-
-        self.model = structured_summarizer.StructuredSummaryBot( self.max_length)
-
-    def get_structured_source(self, abs: List[dict]):
-        p_spans, i_spans, o_spans, punchline_text = [], [], [], []
-        for ab in abs:
-            ti_ab = {"ti": "", "ab": ab}
-            print('Extracting PICO elements from trials ...')
-            out = self.trial_reader.read_trial(ti_ab, task_list=["rct_bot", "pico_span_bot", "punchline_bot"])
-            span_bot_output = out['pico_span_bot']
-            p_spans.append(span_bot_output['p'])
-            i_spans.append(span_bot_output['i'])
-            o_spans.append(span_bot_output['o'])
-            punchline_bot_output = out['punchline_bot']
-            punchline_text.append([punchline_bot_output['punchline_text'], punchline_bot_output['effect']])
-        return p_spans, i_spans, o_spans, punchline_text
-
-    def run_tokenizer(self, spans, span_key):
-        def tokenize(snippet):        
-            encoded_dict = self.tokenizer(
-            snippet,
-            max_length=self.max_length,
-            padding="max_length" if self.pad_to_max_length else None,
-            truncation=True,
-            return_tensors="pt",
-            )
-            return encoded_dict
-
-        spans = [ ' <sep> '.join(each) for each in spans]
-        spans = ['<study> <%s> '%(span_key) + each + ' </%s> </study>'%(span_key) for each in spans]
-        spans = ' '.join(spans)
-        encoded_dict = tokenize(spans)
-        return encoded_dict['input_ids'], encoded_dict['attention_mask']
-
-    
-
-    # def process_spans(self,abs ):
-    #     p_spans, i_spans, o_spans, punchline_text = self.get_structured_source(abs)
-    #     print('POPULATION', p_spans)
-    #     print('INTERVENTIONS', i_spans)
-    #     p_input_ids, p_attn_masks = self.run_tokenizer(p_spans, 'population')
-    #     i_input_ids, i_attn_masks = self.run_tokenizer(i_spans, 'interventions')
-    #     o_input_ids, o_attn_masks = self.run_tokenizer(o_spans, 'outcomes')
-    #     ptext_input_ids, ptext_attn_masks = self.run_tokenizer(punchline_text, 'punchline_text')
-    #     return p_input_ids, p_attn_masks, i_input_ids, i_attn_masks, o_input_ids, o_attn_masks, ptext_input_ids, ptext_attn_masks
-
-    def process_spans(self, data):
-        p_spans = [each['population'] for each in data]
-        i_spans = [each['interventions'] for each in data]
-        o_spans = [each['outcomes'] for each in data]
-        ptext_spans = [each['punchline_text'] for each in data]
+        self.ev_bot = ev_inf_classifier.EvInfBot()
         
-        p_input_ids, p_attn_masks = self.run_tokenizer(p_spans, 'population')
-        i_input_ids, i_attn_masks = self.run_tokenizer(i_spans, 'interventions')
-        o_input_ids, o_attn_masks = self.run_tokenizer(o_spans, 'outcomes')
-        ptext_input_ids, ptext_attn_masks = self.run_tokenizer(ptext_spans, 'punchline_text')
-        return p_input_ids, p_attn_masks, i_input_ids, i_attn_masks, o_input_ids, o_attn_masks, ptext_input_ids, ptext_attn_masks
+        if model_type == 'vanilla':
+            self.max_input_len = 16000
+            self.model = structured_summarizer.VanillaSummaryBot(self.max_input_len)
+            
+        else:
+            self.max_input_len = 3072
+            self.model = structured_summarizer.StructuredSummaryBot( self.max_input_len)
+        
         
     def summarize(self, data):
-        batch = self.process_spans(data)
-        return self.model.summarize(batch)
+        summ = self.model.summarize(data, self.ev_bot)
+        return summ
+              
+        
+        
+
+        
+# class MetaReviewer:
+#     """Produces a summary of multiple related rcts"""
+#     def __init__(self):
+#         #self.trial_reader = TrialReader()
+#         self.max_input_len = 3072
+#         additional_special_tokens = ['<population>', '</population>',
+#                             '<interventions>', '</interventions>',
+#                             '<outcomes>', '</outcomes>',
+#                             '<punchline_text>', '</punchline_text>',
+#                             '<study>', '</study>', "<sep>"]
 
 
+#         self.tokenizer = LEDTokenizer.from_pretrained("allenai/led-base-16384", bos_token="<s>",
+#                                                                     eos_token="</s>",
+#                                                                     pad_token = "<pad>")
+#         self.max_length = 3072
+#         self.pad_to_max_length = True
+
+                                                                    
+#         self.tokenizer.add_tokens(additional_special_tokens)
+
+#         self.model = structured_summarizer.StructuredSummaryBot( self.max_length)
+#         self.ev_bot = ev_inf_classifier.EvInfBot()
+
+    
+        
+#     def summarize(self, data):
+#         batch = self.process_spans(data)
+#         return self.model.summarize(batch)
+
+
+'''
+
+'''

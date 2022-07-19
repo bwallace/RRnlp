@@ -8,6 +8,42 @@ def multimode(l):
    return [val for val,count in next(freqs)[1]]
 
 
+
+def load_vanilla_layers(saved_layers, model):
+    model_updated_state_dict = model.state_dict()
+
+    for layer_name, layer_params in model.state_dict().items():
+        saved_layer_name = 'model.'+layer_name
+        if saved_layer_name in saved_layers:
+            model_updated_state_dict[layer_name] = saved_layers[saved_layer_name]
+        else:
+            print(saved_layer_name)
+        
+    return model_updated_state_dict
+
+
+def load_multilm_layers(saved_layers, model):
+    
+    model_updated_state_dict = model.state_dict()
+
+    for layer_name, layer_params in model.state_dict().items():
+        saved_layer_name = 'model.'+layer_name
+
+        if saved_layer_name  in saved_layers.keys():
+            model_updated_state_dict[layer_name] = saved_layers[saved_layer_name]
+            #print('FOUND', saved_layer_name)
+        else:
+            if 'decoder' in layer_name:
+                decoder_key = layer_name.split('.')
+                shared_decoder_key =  ['decoder'] + decoder_key[1:]
+                shared_decoder_key = '.'.join(shared_decoder_key)
+                saved_layer_name = 'model.'+shared_decoder_key
+                model_updated_state_dict[layer_name]  = saved_layers[saved_layer_name]
+                print('SHARED', layer_name, saved_layer_name)
+            else:
+                print(layer_name)
+    return model_updated_state_dict
+
 def _tie_decoder_weights(decoder1: nn.Module, decoder2: nn.Module, module_name: str):
     def tie_decoder_recursively(
             decoder1_pointer: nn.Module,
