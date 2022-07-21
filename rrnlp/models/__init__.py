@@ -13,6 +13,7 @@ weights_path = os.path.join(os.path.dirname(rrnlp.__file__),
 device = "cpu"
 
 
+
 with open(os.path.join(weights_path, "weights_manifest.json"), 'r') as f:
 	files_needed = json.load(f)
 

@@ -2,7 +2,7 @@
 from transformers import LEDTokenizer, LEDForConditionalGeneration
 from rrnlp.models.RCT_summarization_model import LEDForDataToTextGeneration_MultiLM
 from rrnlp.models.util.rct_summarize.model_inference import Data2TextGenerator
-#`from rrnlp.models.util.rct_summarize.model_template_inference import TemplateGenerator
+from rrnlp.models.util.rct_summarize.model_template_inference import TemplateGenerator
 import pytorch_lightning as pl
 import torch
 import rrnlp
@@ -12,7 +12,7 @@ from collections import Counter
 import os
 
 weights_path = rrnlp.models.weights_path
-
+templates_path = os.path.join("util", "rct_summarize")
 device = 'cpu' 
 
 
@@ -99,7 +99,7 @@ class VanillaSummaryBot():
                     decoder_start_token_id = self.tokenizer.pad_token_id,
                     num_beams= 3,
                     min_length = 3,
-                    max_length = 20,
+                    max_length = 50,
                     early_stopping = True,
                     no_repeat_ngram_size = 3
             )
@@ -223,25 +223,13 @@ class StructuredSummaryBot():
         o_input_ids, o_attn_masks = self.run_tokenizer(o_spans, 'outcomes')
         ptext_input_ids, ptext_attn_masks = self.run_tokenizer(ptext_spans, 'punchline_text')
         return p_input_ids, p_attn_masks, i_input_ids, i_attn_masks, o_input_ids, o_attn_masks, ptext_input_ids, ptext_attn_masks
-        
-    def summarize(self, data, ev_bot):
-        # TODO: replace with real generated summary
-        # currently this is just a dummy summarizer that spits out the punchline of the first study
+    
+    
+    def summarize_template(self, data, ev_bot):
         batch = self.process_spans(data, ev_bot)
-        print('summarizing ...')
-        outputs, logits = self.generator.generate(batch, num_beams = 3,  max_length = 50, min_length = 3, \
-            repetition_penalty = 1.0, length_penalty = 1.0, early_stopping = True, \
-                return_dict_in_generate = False, control_key = None, no_repeat_ngram_size = 3, \
-                    background_lm = False, device = torch.device(device))
         
-        logits = self._get_logit_mapped(logits)
         
-        all_w_logits = []
-        w = []
-        word_logits = []
-        print(len(outputs[0]), len(logits))
-        print(self.tokenizer.decode(outputs[0], skip_special_tokens = True))
-        
+    def process_word_logits(self, outputs, logits):
         def process_logits(word_logits, l):
             if not word_logits:
                 word_logits = [l]
@@ -252,15 +240,20 @@ class StructuredSummaryBot():
                 if word_logits[0] in shortlisted_aspects:
                     word_logit = word_logits[0]
             return word_logit
-            
+        
+        all_w_logits = []
+        w = []
+        word_logits = []
+        #print(len(outputs[0]), len(logits))
+        #print(self.tokenizer.decode(outputs[0], skip_special_tokens = True))
+        
         for t, l in list(zip(outputs[0], list(logits))):
-            t = self.tokenizer.decode(t)
-            print('TRUE', t, l)
+            t = self.tokenizer.decode(t, skip_special_tokens = True)
+            #print('TRUE', t, l)
             if t not in additional_special_tokens:
             
-
+                t = t.split('<')[0]
                 if t != t.strip():
-                    print
                     word_logit = process_logits(word_logits, l)
                     
                     all_w_logits.append((''.join(w), word_logit))
@@ -278,19 +271,44 @@ class StructuredSummaryBot():
         if w:
             all_w_logits.append((''.join(w), process_logits(word_logits, l)))
         
-        print(all_w_logits)
-    
-        #model_output = ' '.join([self.tokenizer.decode(w) for w in outputs])
+        #print(all_w_logits)
         model_output = [each[0].strip() for each in all_w_logits[1:]]
         logits = [each[1] for each in all_w_logits[1:]]
-        #model_output = ' '.join([w for w in model_output.split(' ') if w not in additional_special_tokens])
-        
-        #pred_direction = self._get_summary_direction(model_output)
-        #print('summarizing with templates ...')
-        #model_outputs_temp_diff, model_outputs_temp_nodiff = self.template_summary(batch)
-        
-        #temp_dict = {'nodiff': model_outputs_temp_nodiff, 'diff':  model_outputs_temp_diff, 'pred_direction': pred_direction}
         summary = ' '.join(model_output)
-        print('SUMMARY', summary, summary.split(' '))
-        print('LOGITS', [each[1] for each in all_w_logits])
+        
+        return summary, logits
+        
+    def summarize(self, data, ev_bot):
+        # TODO: replace with real generated summary
+        # currently this is just a dummy summarizer that spits out the punchline of the first study
+        batch = self.process_spans(data, ev_bot)
+        print('summarizing ...')
+        outputs, logits = self.generator.generate(batch, num_beams = 3,  max_length = 50, min_length = 3, \
+            repetition_penalty = 1.0, length_penalty = 1.0, early_stopping = True, \
+                return_dict_in_generate = False, control_key = None, no_repeat_ngram_size = 3, \
+                    background_lm = False, device = torch.device(device))
+        
+        logits = self._get_logit_mapped(logits)
+    
+        summary, logits  = self.process_word_logits(outputs, logits)
+        
+#         print('SUMMARY', summary, summary.split(' '))
+#         print('LOGITS', logits)
+        
+        
+        return {'summary': summary, 'aspect_indices': logits }
+    
+    
+    def summarize_template(self, data, vanilla_summary, direc, ev_bot):
+        batch = self.process_spans(data, ev_bot)
+        TempGen = TemplateGenerator(self.tokenizer, torch.device('cpu'), self.generator)
+        template = TempGen.get_templates(direc)
+        
+        outputs, logits = TempGen.get_summary(batch, template )
+        print(outputs, logits)
+        
+        logits = self._get_logit_mapped(torch.tensor(logits))
+        summary, logits  = self.process_word_logits([outputs], logits)
+        #logits = self._get_logit_mapped(logits)
+        
         return {'summary': summary, 'aspect_indices': logits }

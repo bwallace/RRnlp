@@ -141,6 +141,10 @@ class MetaReviewer:
     def summarize(self, data):
         summ = self.model.summarize(data, self.ev_bot)
         return summ
+    
+    def summarize_template(self, data, summary, direc):
+        summ = self.model.summarize_template(data, summary, direc, self.ev_bot)
+        return summ
               
         
         
