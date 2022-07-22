@@ -69,14 +69,16 @@ class VanillaSummaryBot():
 
         all_data = []
         for each in data:
-            pop = make_spans(strip_spaces(each['population']), 'population')
-            inter = make_spans(strip_spaces(each['interventions']), 'interventions')
-            out = make_spans(strip_spaces(each['outcomes']), 'outcomes')
-            
-            ti_ab = {'ti': each['ti'], 'ab': each['punchline_text']}
-            p_effect = ev_bot.predict_for_ab(ti_ab)['effect']
-            
-            ptext = make_spans(strip_spaces([each['punchline_text'], p_effect]), 'punchline_text')
+            if 'population' in each:
+                pop = make_spans(strip_spaces(each['population']), 'population')
+            if 'interventions' in each:
+                inter = make_spans(strip_spaces(each['interventions']), 'interventions')
+            if 'outcomes' in each:
+                out = make_spans(strip_spaces(each['outcomes']), 'outcomes')
+            if 'punchline_text' in each:
+                ti_ab = {'ti': each['ti'], 'ab': each['punchline_text']}
+                p_effect = ev_bot.predict_for_ab(ti_ab)['effect']
+                ptext = make_spans(strip_spaces([each['punchline_text'], p_effect]), 'punchline_text')
 
             all_data.append(' '.join([pop, inter, out, ptext]))
         all_data = ['<study> ' + each + ' </study>' for each in all_data]
@@ -211,12 +213,16 @@ class StructuredSummaryBot():
         
         
         for each in data:
-            p_spans.append(strip_spaces(each['population']))
-            i_spans.append(strip_spaces(each['interventions']))
-            o_spans.append(strip_spaces(each['outcomes']))
-            ti_ab = {'ti': each['ti'], 'ab': each['punchline_text']}
-            p_effect = ev_bot.predict_for_ab(ti_ab)['effect']
-            ptext_spans.append(strip_spaces([each['punchline_text'], p_effect]))
+            if 'population' in each:
+                p_spans.append(strip_spaces(each['population']))
+            if 'interventions' in each:
+                i_spans.append(strip_spaces(each['interventions']))
+            if 'outcomes' in each:
+                o_spans.append(strip_spaces(each['outcomes']))
+            if 'punchline_text' in each:
+                ti_ab = {'ti': each['ti'], 'ab': each['punchline_text']}
+                p_effect = ev_bot.predict_for_ab(ti_ab)['effect']
+                ptext_spans.append(strip_spaces([each['punchline_text'], p_effect]))
             
         p_input_ids, p_attn_masks = self.run_tokenizer(p_spans, 'population')
         i_input_ids, i_attn_masks = self.run_tokenizer(i_spans, 'interventions')
