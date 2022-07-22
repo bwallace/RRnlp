@@ -294,7 +294,7 @@ class LEDForDataToTextGeneration_MultiLM(LEDPreTrainedModel):
             token_loss = token_loss_fct(torch.log(alphas.view(bs * tok_lens, -1)), labels_tagged.view(-1))
             
         #print(token_loss)
-        if inference:
+        if False:
             alphas_ind = torch.argmax(alphas, 2, keepdim=True)
             one_hot = torch.FloatTensor(alphas.shape)
             alphas_ind = alphas_ind.to(device = one_hot.device)
