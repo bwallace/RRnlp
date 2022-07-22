@@ -289,7 +289,7 @@ class StructuredSummaryBot():
         # currently this is just a dummy summarizer that spits out the punchline of the first study
         batch = self.process_spans(data, ev_bot)
         print('summarizing ...')
-        outputs, logits = self.generator.generate(batch, num_beams = 3,  max_length = 50, min_length = 3, \
+        outputs, logits = self.generator.generate(batch, num_beams = 3,  max_length = 70, min_length = 3, \
             repetition_penalty = 1.0, length_penalty = 1.0, early_stopping = True, \
                 return_dict_in_generate = False, control_key = None, no_repeat_ngram_size = 3, \
                     background_lm = False, device = torch.device(device))
