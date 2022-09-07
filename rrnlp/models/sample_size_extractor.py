@@ -15,7 +15,6 @@ import urllib
 from typing import Type, Tuple, List
 
 import numpy as np 
-import pandas as pd 
 
 import gensim 
 
