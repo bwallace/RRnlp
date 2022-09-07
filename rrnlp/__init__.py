@@ -16,15 +16,22 @@ from rrnlp.models import PICO_tagger, ev_inf_classifier, \
                         RCT_classifier
 
 class TrialReader:
+    task_loaders = {
+        "rct_bot": RCT_classifier.AbsRCTBot,
+        "pico_span_bot": PICO_tagger.PICOBot,
+        "punchline_bot": ev_inf_classifier.EvInfBot,
+        "bias_ab_bot": RoB_classifier_LR.AbsRoBBot,
+        "sample_size_bot": sample_size_extractor.MLPSampleSizeClassifier,
+    }
 
-    def __init__(self):
 
-        self.models = {"rct_bot": RCT_classifier.AbsRCTBot(),
-                       "pico_span_bot": PICO_tagger.PICOBot(),
-                       "punchline_bot": ev_inf_classifier.EvInfBot(),
-                       "bias_ab_bot": RoB_classifier_LR.AbsRoBBot(),
-                       "sample_size_bot": sample_size_extractor.MLPSampleSizeClassifier()}
+    def __init__(self, tasks=None):
+        if tasks is None:
+            tasks = TrialReader.task_loaders.keys()
+        else:
+            assert all([task in TrialReader.task_loaders for task in tasks])
 
+        self.models = {task: TrialReader.task_loaders[task]() for task in tasks}
 
     def read_trial(self, ab: dict, process_rcts_only=True,
                    task_list=None) -> Type[dict]:
