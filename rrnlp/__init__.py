@@ -49,11 +49,11 @@ class TrialReader:
 
         if not return_dict["rct_bot"]["is_rct"]:
             if process_rcts_only:
-                print('''Predicted as non-RCT, so rest of models not run. Re-run
+                warnings.warn('''Predicted as non-RCT, so rest of models not run. Re-run
                          with `process_rcts_only=False` to get all predictions.''')
             else:
-                print('''Warning! The input does not appear to describe an RCT; 
-                         interpret predictions accordingly.''')
+                warnings.filterwarnings('once', 'The input does not appear to describe an RCT;'
+                        'interpret predictions accordingly.')
 
         if (not process_rcts_only) or return_dict["rct_bot"]["is_rct"]:
 
