@@ -16,7 +16,7 @@ import torch
 from transformers import *
 
 import rrnlp
-from rrnlp.models import encoder
+from rrnlp.models import encoder, get_device
 
 
 import pickle
@@ -31,7 +31,6 @@ thresholds = {'bert': {'precise': 0.007859864302367195,
   'sensitive': 0.040919136397870086,
   'balanced': 0.0034764010192827734}}
 
-device = rrnlp.models.device
 weights_path = rrnlp.models.weights_path
 doi = rrnlp.models.files_needed['RCT_classifier']['zenodo']
 
@@ -44,8 +43,10 @@ shared_encoder_weights_path = os.path.join(weights_path, f"{doi}_RCT_encoder_cus
 with open(os.path.join(weights_path, f"{doi}_bert_LR.pck"), 'rb') as f:
     lr = pickle.load(f)
 
-def get_RCT_model() -> Type[BertForSequenceClassification]:
+def get_RCT_model(device=None) -> Type[BertForSequenceClassification]:
     ''' Load in and return RCT model weights. '''
+    if device is None:
+        device = get_device()
 
     # Note that we assume the models were trained under I/O encoding
     # such that num_labels is 2
@@ -92,8 +93,8 @@ class AbsRCTBot:
 
         with torch.no_grad():
 
-            x_input_ids = torch.tensor(x['input_ids']).to(device).unsqueeze(dim=0)
-            attention_mask= torch.tensor(x['attention_mask']).to(device).unsqueeze(dim=0)
+            x_input_ids = torch.tensor(x['input_ids']).to(self.RCT_model.device).unsqueeze(dim=0)
+            attention_mask= torch.tensor(x['attention_mask']).to(self.RCT_model.device).unsqueeze(dim=0)
 
             logits = self.RCT_model(x_input_ids, attention_mask=attention_mask)['logits'].cpu()
             probs  = torch.nn.functional.softmax(logits, dim=1).numpy()

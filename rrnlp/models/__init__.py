@@ -6,11 +6,14 @@ import tarfile
 import requests 
 import urllib 
 import rrnlp 
+import torch
 
 
 weights_path = os.path.join(os.path.dirname(rrnlp.__file__), 
                             "models", "weights")
-device = "cpu"
+
+def get_device():
+    return torch.cuda.current_device() if torch.cuda.is_available() else "cpu"
 
 
 with open(os.path.join(weights_path, "weights_manifest.json"), 'r') as f:

@@ -21,14 +21,13 @@ import torch
 from transformers import *
 
 import rrnlp
-from rrnlp.models import encoder 
+from rrnlp.models import encoder, get_device
 from rrnlp.models.util.minimap import minimap
 from rrnlp.models.util.schwartz_hearst import extract_abbreviation_definition_pairs
 
 
 
 
-device = rrnlp.models.device 
 weights_path = rrnlp.models.weights_path
 doi = rrnlp.models.files_needed['PICO_tagger']['zenodo']
 
@@ -50,15 +49,18 @@ ids2tags = {
     "o" : {0:'outcome', 1:'O'}
 }
 
-def get_tagging_model(element: str) -> Type[BertForTokenClassification]:
+def get_tagging_model(element: str, device=None) -> Type[BertForTokenClassification]:
     ''' Load in and return a tagger for a given element '''
 
     assert(element in ids2tags.keys())
+    if device is None:
+        device = get_device()
 
     # note that we assume the models were trained under I/O
     # encoding such that num_labels is 2
     model = BertForTokenClassification.from_pretrained('allenai/scibert_scivocab_uncased', 
                                                         num_labels=2)
+    model = model.to(device)
 
     
     # load in the correct top layer weights
@@ -92,10 +94,14 @@ def print_labels(tokens: List[str], labels: List[str]) -> List[str]:
 
 def predict_for_str(model: Type[BertForTokenClassification], string: str, 
                     id2tag: dict, print_tokens: bool=True, o_lbl:str="O", 
-                    return_strings_only: bool=True) -> list: 
+                    return_strings_only: bool=True,
+                    device=None) -> list:
     ''' 
     Make predictions for the input text using the given tagging model.
     '''
+    if device is None:
+        device = get_device()
+
     model.eval()
     words = string.split(" ")
     

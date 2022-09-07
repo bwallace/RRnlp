@@ -26,9 +26,8 @@ import torch
 from transformers import *
 
 import rrnlp
-from rrnlp.models import encoder 
+from rrnlp.models import encoder, get_device
 
-device = rrnlp.models.device 
 weights_path = rrnlp.models.weights_path
 
 doi = rrnlp.models.files_needed['ev_inf_classifier']['zenodo']
@@ -42,13 +41,16 @@ shared_enc_punchline_weights_path = os.path.join(weights_path, f"{doi}_evidence_
 clf_inference_weights_path = os.path.join(weights_path, f"{doi}_inference_clf.pt")
 shared_enc_inference_weights_path = os.path.join(weights_path, f"{doi}_inference_encoder_custom.pt")
 
-def get_punchline_extractor() -> Type[BertForSequenceClassification]:
+def get_punchline_extractor(device=None) -> Type[BertForSequenceClassification]:
     ''' 
     Returns the 'punchline' extractor, which seeks out sentences that seem to convey
     main findings. 
     '''
+    if device is None:
+        device = get_device()
     model = BertForSequenceClassification.from_pretrained('allenai/scibert_scivocab_uncased', 
                                                         num_labels=2)
+    model = model.to(device)
 
     # Overwrite some of the encoder layers with custom weights.
     custom_encoder_layers = torch.load(shared_enc_punchline_weights_path, map_location=torch.device(device))
@@ -61,15 +63,17 @@ def get_punchline_extractor() -> Type[BertForSequenceClassification]:
     return model 
 
 
-def get_inference_model() -> Type[BertForSequenceClassification]:
+def get_inference_model(device=None) -> Type[BertForSequenceClassification]:
     '''
     This is a three-way classification model that attempts to classify punchline
     sentences as reporting a result where the intervention resulted in a sig. 
     decrease, no diff, or sig. increase w/r/t the outcome measured.
     '''
+    if device is None:
+        device = get_device()
     model = BertForSequenceClassification.from_pretrained('allenai/scibert_scivocab_uncased', 
                                                         num_labels=3)
-
+    model = model.to(device)
     # Overwrite some of the encoder layers with custom weights
     custom_encoder_layers = torch.load(shared_enc_inference_weights_path, 
                                         map_location=torch.device(device))
@@ -94,8 +98,8 @@ class PunchlineExtractorBot:
 
         with torch.no_grad():
             
-            x_input_ids = torch.tensor(x['input_ids']).to(device)
-            attention_mask= torch.tensor(x['attention_mask']).to(device)
+            x_input_ids = torch.tensor(x['input_ids']).to(self.punchline_extractor_model.device)
+            attention_mask= torch.tensor(x['attention_mask']).to(self.punchline_extractor_model.device)
 
             logits = self.punchline_extractor_model(x_input_ids, attention_mask=attention_mask)['logits'].cpu()
             probs  = torch.nn.functional.softmax(logits, dim=1).numpy()
@@ -132,8 +136,8 @@ class InferenceBot:
 
         with torch.no_grad():
             
-            x_input_ids = torch.tensor(x['input_ids']).to(device)
-            attention_mask= torch.tensor(x['attention_mask']).to(device)
+            x_input_ids = torch.tensor(x['input_ids']).to(self.inference_model.device)
+            attention_mask= torch.tensor(x['attention_mask']).to(self.inference_model.device)
 
             logits = self.inference_model(x_input_ids, attention_mask=attention_mask)['logits'].cpu()
             probs  = torch.nn.functional.softmax(logits, dim=1).numpy()
