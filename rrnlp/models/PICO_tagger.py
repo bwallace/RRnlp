@@ -221,4 +221,3 @@ ti_abs = {"ti": 'A Cluster-Randomized Trial of Hydroxychloroquine for Prevention
 
 preds = bot.predict_for_ab(ti_abs)
 '''
-        
