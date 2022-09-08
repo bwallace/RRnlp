@@ -13,7 +13,7 @@ import os
 from typing import Type, Tuple, List
 
 import torch
-from transformers import *
+from transformers import BertForSequenceClassification
 
 import rrnlp
 from rrnlp.models import encoder, get_device
