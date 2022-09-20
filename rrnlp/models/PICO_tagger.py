@@ -53,8 +53,7 @@ def get_tagging_model(element: str, device=None) -> Type[BertForTokenClassificat
     ''' Load in and return a tagger for a given element '''
 
     assert(element in ids2tags.keys())
-    if device is None:
-        device = get_device()
+    device = get_device(device)
 
     # note that we assume the models were trained under I/O
     # encoding such that num_labels is 2
@@ -148,10 +147,10 @@ def cleanup(spans: List[str]) -> List[str]:
 
 class PICOBot:
     ''' Lightweight class that holds taggers for all elements '''
-    def __init__(self):
+    def __init__(self, device='auto'):
         self.PICO_models = {}
         for element in ['p', 'i', 'o']: 
-            self.PICO_models[element] = get_tagging_model(element)
+            self.PICO_models[element] = get_tagging_model(element, device=device)
 
 
     def predict_for_ab(self, ab: dict) -> dict:

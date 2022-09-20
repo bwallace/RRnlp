@@ -40,10 +40,9 @@ clf_weights_path = os.path.join(weights_path, f"{doi}_RoB_overall_abs_clf.pt")
 # Task-specific weights for the encoder
 shared_encoder_weights_path = os.path.join(weights_path, f"{doi}_RoB_encoder_custom.pt")
 
-def get_RoB_model(device=None) -> Type[BertForSequenceClassification]:
+def get_RoB_model(device='auto') -> Type[BertForSequenceClassification]:
     ''' Load in and return RoB model weights. '''
-    if device is None:
-        device = get_device()
+    device = get_device('device')
 
     # Note that we assume the models were trained under I/O encoding 
     # such that num_labels is 2
@@ -65,8 +64,8 @@ def get_RoB_model(device=None) -> Type[BertForSequenceClassification]:
 
 class AbsRoBBot:
     ''' Lightweight container class that holds RoB model '''
-    def __init__(self):
-        self.RoB_model = get_RoB_model()
+    def __init__(self, device=None):
+        self.RoB_model = get_RoB_model(device=device)
         self.RoB_model.eval()
 
     def predict_for_ab(self, ab: dict) -> dict:

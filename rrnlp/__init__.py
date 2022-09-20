@@ -13,7 +13,7 @@ import rrnlp
 
 from rrnlp.models import PICO_tagger, ev_inf_classifier, \
                         sample_size_extractor, RoB_classifier_LR, \
-                        RCT_classifier
+                        RCT_classifier, get_device \
 
 class TrialReader:
     task_loaders = {
@@ -25,13 +25,13 @@ class TrialReader:
     }
 
 
-    def __init__(self, tasks=None):
+    def __init__(self, tasks=None, device='auto'):
         if tasks is None:
             tasks = TrialReader.task_loaders.keys()
         else:
             assert all([task in TrialReader.task_loaders for task in tasks])
 
-        self.models = {task: TrialReader.task_loaders[task]() for task in tasks}
+        self.models = {task: TrialReader.task_loaders[task](device=get_device(device)) for task in tasks}
 
     def read_trial(self, ab: dict, process_rcts_only=True,
                    task_list=None) -> Type[dict]:

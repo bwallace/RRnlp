@@ -41,13 +41,12 @@ shared_enc_punchline_weights_path = os.path.join(weights_path, f"{doi}_evidence_
 clf_inference_weights_path = os.path.join(weights_path, f"{doi}_inference_clf.pt")
 shared_enc_inference_weights_path = os.path.join(weights_path, f"{doi}_inference_encoder_custom.pt")
 
-def get_punchline_extractor(device=None) -> Type[BertForSequenceClassification]:
+def get_punchline_extractor(device='auto') -> Type[BertForSequenceClassification]:
     ''' 
     Returns the 'punchline' extractor, which seeks out sentences that seem to convey
     main findings. 
     '''
-    if device is None:
-        device = get_device()
+    device = get_device(device=device)
     model = BertForSequenceClassification.from_pretrained('allenai/scibert_scivocab_uncased', 
                                                         num_labels=2)
     model = model.to(device)
@@ -63,14 +62,13 @@ def get_punchline_extractor(device=None) -> Type[BertForSequenceClassification]:
     return model 
 
 
-def get_inference_model(device=None) -> Type[BertForSequenceClassification]:
+def get_inference_model(device='auto') -> Type[BertForSequenceClassification]:
     '''
     This is a three-way classification model that attempts to classify punchline
     sentences as reporting a result where the intervention resulted in a sig. 
     decrease, no diff, or sig. increase w/r/t the outcome measured.
     '''
-    if device is None:
-        device = get_device()
+    device = get_device(device)
     model = BertForSequenceClassification.from_pretrained('allenai/scibert_scivocab_uncased', 
                                                         num_labels=3)
     model = model.to(device)
@@ -88,8 +86,8 @@ def get_inference_model(device=None) -> Type[BertForSequenceClassification]:
 class PunchlineExtractorBot:
     ''' Lightweight container class for extracting punchlines. '''
 
-    def __init__(self):
-        self.punchline_extractor_model = get_punchline_extractor()
+    def __init__(self, device='auto'):
+        self.punchline_extractor_model = get_punchline_extractor(device=device)
         self.punchline_extractor_model.eval()
 
     def predict_for_sentences(self, sents: List[str]) -> Type[np.array]: 
@@ -120,8 +118,8 @@ class PunchlineExtractorBot:
 
 class InferenceBot:
     ''' Container for *inference* model which classifies punchlines. '''
-    def __init__(self):
-        self.inference_model = get_inference_model()
+    def __init__(self, device='auto'):
+        self.inference_model = get_inference_model(device=device)
         self.inference_model.eval()
 
     def predict_for_sentence(self, sent: str) -> Type[np.array]: 
@@ -146,9 +144,9 @@ class InferenceBot:
 
 class EvInfBot:
     ''' Composes the punchline extractor and inference model. '''
-    def __init__(self):
-        self.pl_bot  = PunchlineExtractorBot()
-        self.inf_bot = InferenceBot()
+    def __init__(self, device='auto'):
+        self.pl_bot  = PunchlineExtractorBot(device=device)
+        self.inf_bot = InferenceBot(device=device)
 
         self.direction_strs = ["↓ sig. decrease", "— no diff", "↑ sig. increase"]
 

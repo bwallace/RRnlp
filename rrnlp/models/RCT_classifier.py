@@ -43,10 +43,9 @@ shared_encoder_weights_path = os.path.join(weights_path, f"{doi}_RCT_encoder_cus
 with open(os.path.join(weights_path, f"{doi}_bert_LR.pck"), 'rb') as f:
     lr = pickle.load(f)
 
-def get_RCT_model(device=None) -> Type[BertForSequenceClassification]:
+def get_RCT_model(device='auto') -> Type[BertForSequenceClassification]:
     ''' Load in and return RCT model weights. '''
-    if device is None:
-        device = get_device()
+    device = get_device(device)
 
     # Note that we assume the models were trained under I/O encoding
     # such that num_labels is 2
@@ -69,8 +68,8 @@ def get_RCT_model(device=None) -> Type[BertForSequenceClassification]:
 
 class AbsRCTBot:
     ''' Lightweight container class that holds RCT model '''
-    def __init__(self):
-        self.RCT_model = get_RCT_model()
+    def __init__(self, device='auto'):
+        self.RCT_model = get_RCT_model(get_device(device))
         self.RCT_model.eval()
 
     def classify(self, raw_bert_score: float) -> dict:

@@ -12,8 +12,18 @@ import torch
 weights_path = os.path.join(os.path.dirname(rrnlp.__file__), 
                             "models", "weights")
 
-def get_device():
-    return torch.cuda.current_device() if torch.cuda.is_available() else "cpu"
+def get_device(device='auto'):
+    if device == 'auto' or device is None:
+        return torch.cuda.current_device() if torch.cuda.is_available() else "cpu"
+    elif isinstance(device, (torch.device, int)):
+        return device
+    elif 'cuda' in device:
+        if torch.cuda.is_available():
+            return torch.cuda.current_device()
+        else:
+            raise Exception('requested a GPU but none available!')
+    else:
+        return torch.device(device)
 
 
 with open(os.path.join(weights_path, "weights_manifest.json"), 'r') as f:
