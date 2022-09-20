@@ -107,7 +107,9 @@ class PunchlineExtractorBot:
     def predict_for_ab(self, ab: dict) -> Tuple[str, float]:
         ti_and_abs = ab['ti'] + '  ' + ab['ab']
         # Split into sentences via scispacy
-        sentences = [s.text for s in encoder.nlp(ti_and_abs).sents]
+        sentences = [s.text.strip() for s in encoder.nlp(ti_and_abs).sents]
+        # filter newline sentences
+        sentences = list(filter(lambda s: len(s.strip()) > 0, sentences))
         # Make punchline predictions
         pred_probs = self.predict_for_sentences(sentences)
         best_sent_idx = np.argmax(pred_probs[:,1])
