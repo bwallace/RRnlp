@@ -23,12 +23,11 @@ from typing import Type, Tuple, List
 import numpy as np 
 
 import torch 
-from transformers import *
+from transformers import BertForSequenceClassification
 
 import rrnlp
-from rrnlp.models import encoder 
+from rrnlp.models import encoder, get_device
 
-device = rrnlp.models.device 
 weights_path = rrnlp.models.weights_path
 
 doi = rrnlp.models.files_needed['ev_inf_classifier']['zenodo']
@@ -42,13 +41,15 @@ shared_enc_punchline_weights_path = os.path.join(weights_path, f"{doi}_evidence_
 clf_inference_weights_path = os.path.join(weights_path, f"{doi}_inference_clf.pt")
 shared_enc_inference_weights_path = os.path.join(weights_path, f"{doi}_inference_encoder_custom.pt")
 
-def get_punchline_extractor() -> Type[BertForSequenceClassification]:
+def get_punchline_extractor(device='auto') -> Type[BertForSequenceClassification]:
     ''' 
     Returns the 'punchline' extractor, which seeks out sentences that seem to convey
     main findings. 
     '''
+    device = get_device(device=device)
     model = BertForSequenceClassification.from_pretrained('allenai/scibert_scivocab_uncased', 
                                                         num_labels=2)
+    model = model.to(device)
 
     # Overwrite some of the encoder layers with custom weights.
     custom_encoder_layers = torch.load(shared_enc_punchline_weights_path, map_location=torch.device(device))
@@ -61,15 +62,16 @@ def get_punchline_extractor() -> Type[BertForSequenceClassification]:
     return model 
 
 
-def get_inference_model() -> Type[BertForSequenceClassification]:
+def get_inference_model(device='auto') -> Type[BertForSequenceClassification]:
     '''
     This is a three-way classification model that attempts to classify punchline
     sentences as reporting a result where the intervention resulted in a sig. 
     decrease, no diff, or sig. increase w/r/t the outcome measured.
     '''
+    device = get_device(device)
     model = BertForSequenceClassification.from_pretrained('allenai/scibert_scivocab_uncased', 
                                                         num_labels=3)
-
+    model = model.to(device)
     # Overwrite some of the encoder layers with custom weights
     custom_encoder_layers = torch.load(shared_enc_inference_weights_path, 
                                         map_location=torch.device(device))
@@ -84,8 +86,8 @@ def get_inference_model() -> Type[BertForSequenceClassification]:
 class PunchlineExtractorBot:
     ''' Lightweight container class for extracting punchlines. '''
 
-    def __init__(self):
-        self.punchline_extractor_model = get_punchline_extractor()
+    def __init__(self, device='auto'):
+        self.punchline_extractor_model = get_punchline_extractor(device=device)
         self.punchline_extractor_model.eval()
 
     def predict_for_sentences(self, sents: List[str]) -> Type[np.array]: 
@@ -94,8 +96,8 @@ class PunchlineExtractorBot:
 
         with torch.no_grad():
             
-            x_input_ids = torch.tensor(x['input_ids']).to(device)
-            attention_mask= torch.tensor(x['attention_mask']).to(device)
+            x_input_ids = torch.tensor(x['input_ids']).to(self.punchline_extractor_model.device)
+            attention_mask= torch.tensor(x['attention_mask']).to(self.punchline_extractor_model.device)
 
             logits = self.punchline_extractor_model(x_input_ids, attention_mask=attention_mask)['logits'].cpu()
             probs  = torch.nn.functional.softmax(logits, dim=1).numpy()
@@ -105,7 +107,9 @@ class PunchlineExtractorBot:
     def predict_for_ab(self, ab: dict) -> Tuple[str, float]:
         ti_and_abs = ab['ti'] + '  ' + ab['ab']
         # Split into sentences via scispacy
-        sentences = [s.text for s in encoder.nlp(ti_and_abs).sents]
+        sentences = [s.text.strip() for s in encoder.nlp(ti_and_abs).sents]
+        # filter newline sentences
+        sentences = list(filter(lambda s: len(s.strip()) > 0, sentences))
         # Make punchline predictions
         pred_probs = self.predict_for_sentences(sentences)
         best_sent_idx = np.argmax(pred_probs[:,1])
@@ -116,8 +120,8 @@ class PunchlineExtractorBot:
 
 class InferenceBot:
     ''' Container for *inference* model which classifies punchlines. '''
-    def __init__(self):
-        self.inference_model = get_inference_model()
+    def __init__(self, device='auto'):
+        self.inference_model = get_inference_model(device=device)
         self.inference_model.eval()
 
     def predict_for_sentence(self, sent: str) -> Type[np.array]: 
@@ -132,8 +136,8 @@ class InferenceBot:
 
         with torch.no_grad():
             
-            x_input_ids = torch.tensor(x['input_ids']).to(device)
-            attention_mask= torch.tensor(x['attention_mask']).to(device)
+            x_input_ids = torch.tensor(x['input_ids']).to(self.inference_model.device)
+            attention_mask= torch.tensor(x['attention_mask']).to(self.inference_model.device)
 
             logits = self.inference_model(x_input_ids, attention_mask=attention_mask)['logits'].cpu()
             probs  = torch.nn.functional.softmax(logits, dim=1).numpy()
@@ -142,9 +146,9 @@ class InferenceBot:
 
 class EvInfBot:
     ''' Composes the punchline extractor and inference model. '''
-    def __init__(self):
-        self.pl_bot  = PunchlineExtractorBot()
-        self.inf_bot = InferenceBot()
+    def __init__(self, device='auto'):
+        self.pl_bot  = PunchlineExtractorBot(device=device)
+        self.inf_bot = InferenceBot(device=device)
 
         self.direction_strs = ["↓ sig. decrease", "— no diff", "↑ sig. increase"]
 

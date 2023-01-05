@@ -13,18 +13,25 @@ import rrnlp
 
 from rrnlp.models import PICO_tagger, ev_inf_classifier, \
                         sample_size_extractor, RoB_classifier_LR, \
-                        RCT_classifier
+                        RCT_classifier, get_device \
 
 class TrialReader:
+    task_loaders = {
+        "rct_bot": RCT_classifier.AbsRCTBot,
+        "pico_span_bot": PICO_tagger.PICOBot,
+        "punchline_bot": ev_inf_classifier.EvInfBot,
+        "bias_ab_bot": RoB_classifier_LR.AbsRoBBot,
+        "sample_size_bot": sample_size_extractor.MLPSampleSizeClassifier,
+    }
 
-    def __init__(self):
 
-        self.models = {"rct_bot": RCT_classifier.AbsRCTBot(),
-                       "pico_span_bot": PICO_tagger.PICOBot(),
-                       "punchline_bot": ev_inf_classifier.EvInfBot(),
-                       "bias_ab_bot": RoB_classifier_LR.AbsRoBBot(),
-                       "sample_size_bot": sample_size_extractor.MLPSampleSizeClassifier()}
+    def __init__(self, tasks=None, device='auto'):
+        if tasks is None:
+            tasks = TrialReader.task_loaders.keys()
+        else:
+            assert all([task in TrialReader.task_loaders for task in tasks])
 
+        self.models = {task: TrialReader.task_loaders[task](device=get_device(device)) for task in tasks}
 
     def read_trial(self, ab: dict, process_rcts_only=True,
                    task_list=None) -> Type[dict]:
@@ -49,11 +56,11 @@ class TrialReader:
 
         if not return_dict["rct_bot"]["is_rct"]:
             if process_rcts_only:
-                print('''Predicted as non-RCT, so rest of models not run. Re-run
+                warnings.warn('''Predicted as non-RCT, so rest of models not run. Re-run
                          with `process_rcts_only=False` to get all predictions.''')
             else:
-                print('''Warning! The input does not appear to describe an RCT; 
-                         interpret predictions accordingly.''')
+                warnings.filterwarnings('once', 'The input does not appear to describe an RCT;'
+                        'interpret predictions accordingly.')
 
         if (not process_rcts_only) or return_dict["rct_bot"]["is_rct"]:
 
