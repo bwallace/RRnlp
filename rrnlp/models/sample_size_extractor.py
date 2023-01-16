@@ -66,7 +66,7 @@ class MLPSampleSizeClassifier:
     This class wraps a simple window-based (torch) MLP and bespoke 
     feature extraction functions, etc.
     '''
-    def __init__(self):
+    def __init__(self, device='auto'):
 
         self.nlp = encoder.nlp
         # This is for POS tags

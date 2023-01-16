@@ -2,7 +2,7 @@
 A module that ties together the constituent models into a single
 interface; will pull everything it can from an input article.
 
-Note: if you find this useful, please see: 
+Note: if you find this useful, please see:
         https://github.com/bwallace/RRnlp#citation.
 '''
 from typing import Type, Tuple, List
@@ -13,7 +13,7 @@ import rrnlp
 
 from rrnlp.models import PICO_tagger, ev_inf_classifier, \
                         sample_size_extractor, RoB_classifier_LR, \
-                        RCT_classifier, get_device \
+                        RCT_classifier, study_design_classifier, get_device \
 
 class TrialReader:
     task_loaders = {
@@ -22,6 +22,7 @@ class TrialReader:
         "punchline_bot": ev_inf_classifier.EvInfBot,
         "bias_ab_bot": RoB_classifier_LR.AbsRoBBot,
         "sample_size_bot": sample_size_extractor.MLPSampleSizeClassifier,
+        "study_design_bot": study_design_classifier.AbsStudyDesignBot
     }
 
 
@@ -46,8 +47,8 @@ class TrialReader:
                    "bias_ab_bot", "sample_size_bot"]
 
         return_dict = {}
-        return_dict["rct_bot"] = {"is_rct": False}  
-        
+        return_dict["rct_bot"] = {"is_rct": False}
+
         if process_rcts_only:
             task_list.remove('rct_bot')
             # First: is this an RCT? If not, the rest of the models do not make
@@ -66,14 +67,14 @@ class TrialReader:
 
             for task in task_list:
                 return_dict[task] = self.models[task].predict_for_ab(ab)
-                                            
+
         return return_dict
 
 
 # For e.g.:
-# import rrnlp  
+# import rrnlp
 # trial_reader = rrnlp.TrialReader()
-    
+
 # ti_abs = {"ti": 'A Cluster-Randomized Trial of Hydroxychloroquine for Prevention of Covid-19',
 #           "ab": """ Background: Current strategies for preventing severe acute
 #            respiratory syndrome coronavirus 2 (SARS-CoV-2) infection are

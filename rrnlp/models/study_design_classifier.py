@@ -47,7 +47,7 @@ def get_models():
 
 class AbsStudyDesignBot:
     ''' Lightweight container class that holds study design model '''
-    def __init__(self):
+    def __init__(self, device=None):
         self.models = get_models()        
 
     def predict_for_ab(self, ab: dict) -> float:
